@@ -1,5 +1,7 @@
 # ChoraleBricks
 
+[![Python package](https://github.com/stefan-balke/choralebricks/actions/workflows/python-package.yml/badge.svg)](https://github.com/stefan-balke/choralebricks/actions/workflows/python-package.yml)
+
 WIP
 
 ## Installation
