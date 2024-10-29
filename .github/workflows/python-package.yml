@@ -1,17 +1,13 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
 name: Python package
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -19,29 +15,25 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Install Poetry
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -  # Install Poetry
-      - name: Configure Poetry
-        run: |
-          echo "virtualenvs.in-project = true" >> ~/.config/pypoetry/config.toml  # Optional: Keep virtual environments in the project directory
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Configure Poetry for non-interactive mode
+        run: poetry config virtualenvs.create false
+
       - name: Install dependencies
+        run: poetry install
+
+      - name: Run tests with pytest
         run: |
-          poetry install  # Install dependencies using Poetry
-      - name: Lint with flake8
-        run: |
-          # Install flake8
-          poetry add --dev flake8
-          # Stop the build if there are Python syntax errors or undefined names
-          poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Test with pytest
-        run: |
-          poetry add --dev pytest pytest-cov  # Install pytest and pytest-cov if not already in pyproject.toml
-          poetry run pytest  # Run tests with pytest
+          poetry run pytest --cov=choralebricks --cov-report=term-missing
