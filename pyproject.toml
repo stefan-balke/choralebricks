@@ -21,11 +21,8 @@ dependencies = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v --cov=mypackage --cov-report=term-missing"
+addopts = "-v --cov=choralebricks --cov-report=term-missing"
 python_files = ["test_*.py", "*_test.py"]
-
-[tool.pytest.ini_options.cov]
-source = ["mypackage"]
 
 [tool.black]
 line-length = 120  # Default is 88, but you can set this to your preferred length
