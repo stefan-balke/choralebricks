@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "choralebricks"
+version = "0.1.0"
+description = "Supporting package for the ChoraleBricks dataset."
+authors = [
+    { name = "Stefan Balke", email = "stefan.balke@audiolabs-erlangen.de" },
+]
+dependencies = [
+    "numpy>=1.18.0",
+    "scipy>=1.4.0",
+    "soundfile",
+    "pytest",
+    "pytest-cov",
+    "black",
+    "pydantic",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=mypackage --cov-report=term-missing"
+python_files = ["test_*.py", "*_test.py"]
+
+[tool.pytest.ini_options.cov]
+source = ["mypackage"]
+
+[tool.black]
+line-length = 120  # Default is 88, but you can set this to your preferred length
+target-version = ["py39"]  # Set the Python version(s) you're targeting
+skip-string-normalization = true  # Optional: keep original quote styles
+include = '\.pyi?$'  # Only format .py and .pyi files
