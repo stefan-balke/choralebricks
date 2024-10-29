@@ -7,7 +7,8 @@ WIP
 Clone Repository, then:
 
 ```
-    pip install -e .
+    pip install poetry
+    poetry install
 ```
 
 ## Examples
