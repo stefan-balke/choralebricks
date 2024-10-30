@@ -1,6 +1,7 @@
 import pytest
 from choralebricks.dataset import SongDB, TrackSelectorRandom, MixerSimple
 
+# TODO: test for voice selection (is the correct track taken?)
 
 def test_import_my_module():
     # Attempt to import the module

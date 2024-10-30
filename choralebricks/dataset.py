@@ -137,8 +137,16 @@ class TrackSelectorRandom(TrackSelector):
         # copy of the song with randomly fitered tracks
         logger.info(f"Filtering {self.song.id}")
 
-        track_choice_ids = np.random.choice(len(self.song.tracks), size=num_voices, replace=False)
+        voices: list[int] = [cur_track.voice for cur_track in self.song.tracks]
+        track_choice_ids: list[int] = []
 
+        # for each voice, draw a track
+        for cur_voice in set(voices):
+            candidate_idcs: np.array = np.where(np.asarray(voices) == cur_voice)[0]
+            choice_id: int = int(np.random.choice(candidate_idcs, size=1))
+            track_choice_ids.append(choice_id)
+
+        # collate tracks
         self.song.tracks = [self.song.tracks[i] for i in track_choice_ids]
 
 
