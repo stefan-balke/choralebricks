@@ -3,31 +3,16 @@ import logging
 import copy
 from pydantic import BaseModel
 from pathlib import Path
-from enum import Enum, EnumMeta
 from abc import ABC, abstractmethod
 import numpy as np
 import soundfile as sf
 
+from .enums import Instrument
+
 
 logger = logging.getLogger(__name__)
 
-# class MetaEnum(EnumMeta):
-#     def __contains__(cls, item):
-#         try:
-#             cls(item)
-#         except ValueError:
-#             return False
-#         return True
-
-
-# class StrEnum(str, Enum, metaclass=MetaEnum):
-#     def __str__(self):
-#         return str(self.value)
-
-
-# class Instruments(StrEnum):
-#     trumpet = "Trumpet"
-
+# TODO: This should go somewhere central
 NUM_VOICES = 4
 
 
@@ -43,7 +28,7 @@ class Track(BaseModel):
     min_samples: int
     sample_rate: int
     voice: int
-    instrument: str = None
+    instrument: Instrument = None
     player_id: Optional[str] = None
     microphone: Optional[str] = None
     room: Optional[str] = None
