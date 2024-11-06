@@ -1,5 +1,6 @@
 from typing import Any, Optional, Union
 import logging
+import os
 import copy
 from pydantic import BaseModel
 from pathlib import Path
@@ -7,14 +8,10 @@ from abc import ABC, abstractmethod
 import numpy as np
 import soundfile as sf
 
-from .enums import Instrument
+from .constants import Instrument, NUM_VOICES
 
 
 logger = logging.getLogger(__name__)
-
-# TODO: This should go somewhere central
-NUM_VOICES = 4
-
 
 class Track(BaseModel):
     """
@@ -97,9 +94,21 @@ class SongDB:
     Represents the Song Database. Collects songs from a pre-defined folder structure.
     """
 
-    def __init__(self, root_dir: str, **kwargs) -> None:
+    def __init__(
+        self,
+        root_dir: str=None,
+        **kwargs
+    ) -> None:
         super().__init__(**kwargs)
-        self.root_dir: Path = Path(root_dir)
+
+        if root_dir is None:
+            if "CHORALEDB_PATH" in os.environ:
+                self.root_dir = os.environ["CHORALEDB_PATH"]
+            else:
+                raise RuntimeError("Variable `CHORALEDB_PATH` has not been set.")
+        else:
+            self.root_dir = Path(root_dir).expanduser()
+
         self.songs: list[Song] = []
         self.collect_songs()
 

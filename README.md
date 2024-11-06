@@ -4,15 +4,42 @@
 
 WIP
 
-## Installation
+## Installation and Setup
 
-Clone Repository, then:
+Clone repository, then:
 
 ```
     pip install poetry
     poetry install
 ```
 
-## Examples
+Dowload the corresponding audio files from Zenodo: TODO.
 
-Find example scripts for usage in the `examples/` folder.
+## Usage
+
+To use the full dataset, set a dataset `root_dir` directory 
+
+```python
+cbdb = SongDB(root_dir="/path/to/ChoraleBricks")
+```
+
+where `root_dir` is the path to the ChoraleDB dataset folder.
+The `root_dir` can also be overridden using a system environment variable.
+Just ```export CHORALEDBPATH=/path/to/ChoraleBricks``` inside your bash environment.
+In that case no arguments would need to passed to `SongDB()`.
+
+Further example scripts for different standard scenarios can be found in the `examples/` folder.
+
+## Cite
+
+```latex
+@article(TODO)
+```
+
+## How to contribute
+
+_ChoraleDB_ is a community focused project, we therefore encourage the community to submit bug-fixes and requests for technical support through [github issues](https://github.com/stefan-balke/choralebricks/issues/new).
+
+## License
+
+MIT

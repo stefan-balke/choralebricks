@@ -1,6 +1,8 @@
 from enum import Enum
 
 
+NUM_VOICES = 4
+
 class Instrument(Enum):
     FLUTE = "fl"
     CLARINET = "cl"

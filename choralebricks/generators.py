@@ -9,7 +9,7 @@ def tracks():
     and you are not interested in the song relations,
     e.g., when doing F0-extraction on monophonic audio singals.
     """
-    cbdb = SongDB(root_dir="/Users/stefan/dev/wind_music_db/data/02_multitrack")
+    cbdb = SongDB()
 
     for cur_song in cbdb.songs:
         for cur_track in cur_song.tracks:
