@@ -7,6 +7,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 import numpy as np
 import soundfile as sf
+from itertools import product
 
 from .constants import Instrument, NUM_VOICES
 
@@ -52,7 +53,13 @@ class Song:
         self.collect_tracks()
 
     def __repr__(self):
-        return f"{self.id}, #Tracks: {len(self.tracks)}"
+        # TODO: Would be nice to have this parameterized by NUM_VOICES
+        return f"{self.id}, " \
+               f"#Tracks: {len(self.tracks)}, " \
+               f"{{1: {self.tracks[0].instrument}, " \
+               f"2: {self.tracks[1].instrument}, " \
+               f"3: {self.tracks[2].instrument}, " \
+               f"4: {self.tracks[3].instrument}}}"
 
     def collect_tracks(self, suffix="wav"):
         tracks_dir = self.song_dir / "tracks"
@@ -141,9 +148,9 @@ class TrackSelectorRandom(TrackSelector):
         self.song = copy.deepcopy(song)
         self.filter_tracks()
 
-    def filter_tracks(self, num_voices=NUM_VOICES):
+    def filter_tracks(self):
         # copy of the song with randomly fitered tracks
-        logger.info(f"Filtering {self.song.id}")
+        logger.info(f"Track selection in {self.song.id}")
 
         voices: list[int] = [cur_track.voice for cur_track in self.song.tracks]
         track_choice_ids: list[int] = []
@@ -156,6 +163,57 @@ class TrackSelectorRandom(TrackSelector):
 
         # collate tracks
         self.song.tracks = [self.song.tracks[i] for i in track_choice_ids]
+
+
+class TrackSelectorPermutations(TrackSelector):
+    def __init__(
+        self,
+        song: Song,
+    ):
+        self.song = song
+        self.song_out = copy.deepcopy(song)
+        self.tracks_by_voice: dict = dict()
+
+        self.sort_voices()
+
+        # getting all the permutations as a cartesian product of all tracks
+        # Note: Converting it to a list might get big, if more data is stored
+        self._permutations: list[tuple[int]] = list(product(*self.tracks_by_voice.values()))
+        print(len(self._permutations))
+
+    def sort_voices(self):
+        # for each track, get the associated voice
+        voices: list[int] = [cur_track.voice for cur_track in self.song.tracks]
+
+        # for each voice, collect the track object and add to the list in the dict
+        for cur_voice in set(voices):
+            candidate_idcs: np.array = np.where(np.asarray(voices) == cur_voice)[0]
+
+            # init list in the list which will hold the objects
+            self.tracks_by_voice[str(cur_voice)] = list()
+
+            for cur_idc in candidate_idcs:
+                self.tracks_by_voice[str(cur_voice)].append(cur_idc)
+
+    def filter_tracks(self, track_choice_ids):
+        logger.info(f"Track selection in {self.song.id}")
+
+        # collate tracks
+        self.song_out.tracks = [self.song.tracks[i] for i in track_choice_ids]
+
+    def __getitem__(self, index):
+        track_choice_ids = self._permutations[index]
+        
+        # filter the tracks to the permuation selection
+        self.filter_tracks(track_choice_ids=track_choice_ids)
+
+        return self.song_out
+    
+    def __len__(self):
+        return len(self._permutations)
+
+    def __repr__(self):
+        return f"Indexed instrument permutations with {len(self)} items."
 
 
 class Mixer(ABC):

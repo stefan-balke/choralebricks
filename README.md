@@ -30,6 +30,20 @@ In that case no arguments would need to passed to `SongDB()`.
 
 Further example scripts for different standard scenarios can be found in the `examples/` folder.
 
+## Glossary
+
+**song**
+
+In this dataset, it groups all tracks of a certain chorale together.
+
+**track**
+
+A single track in a multi-track recording.
+
+**voice**
+
+Each chorale consists of 4 voices sometimes referred to sopran, alt, tenor, and bass (SATB).
+
 ## Cite
 
 ```latex
