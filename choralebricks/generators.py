@@ -36,3 +36,14 @@ def ww_ensemble_songs():
     """
     # TODO: build logic
     pass
+
+def mixed_ensemble_songs():
+    """
+    Generator that yields all songs as a pre-defined ensemble with mixed instruments:
+    1. Voice: tbd
+    2. Voice: tbd
+    3. Voice: tbd
+    4. Voice: tbd
+    """
+    # TODO: build logic
+    pass
