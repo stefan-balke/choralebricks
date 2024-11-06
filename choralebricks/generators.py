@@ -18,10 +18,10 @@ def tracks():
 def brass_ensemble_songs():
     """
     Generator that yields all songs as a pre-defined brass ensemble:
-    1. Trumpet
-    2. Trumpet
-    3. Baritone
-    4. Tuba
+    1. Voice: Trumpet
+    2. Voice: Trumpet
+    3. Voice: Baritone
+    4. Voice: Tuba
     """
     # TODO: build logic
     pass
@@ -29,10 +29,10 @@ def brass_ensemble_songs():
 def ww_ensemble_songs():
     """
     Generator that yields all songs as a pre-defined woodwinds ensemble:
-    1. Clarinet
-    2. Clarinet
-    3. Bass Clarinet
-    4. Bass Clarinet
+    1. Voice: Clarinet
+    2. Voice: Clarinet
+    3. Voice: Bass Clarinet
+    4. Voice: Bass Clarinet
     """
     # TODO: build logic
     pass
