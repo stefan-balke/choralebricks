@@ -14,7 +14,11 @@ def main():
         logger.info(f"Processing {cur_song}...")
         cur_song_filtered = TrackSelectorRandom(cur_song).song
         cur_song_mixed = MixerSimple(cur_song_filtered).get_mix()
-        sf.write(f"examples/{cur_song.id}.wav", data=cur_song_mixed["MIX"], samplerate=cur_song_mixed["SAMPLERATE"])
+        sf.write(
+            f"examples/{cur_song.id}.wav",
+            data=cur_song_mixed["MIX"],
+            samplerate=cur_song_mixed["SAMPLERATE"]
+        )
         print(cur_song_mixed)
 
 if __name__ == "__main__":

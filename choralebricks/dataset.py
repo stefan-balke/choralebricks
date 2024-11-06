@@ -23,7 +23,7 @@ class Track(BaseModel):
 
     path_audio: Union[str, Path]
     path_f0: Optional[Union[str, Path]] = None
-    path_score: Optional[Union[str, Path]] = None
+    path_notes: Optional[Union[str, Path]] = None
     num_channels: int
     min_samples: int
     sample_rate: int
@@ -59,16 +59,30 @@ class Song:
 
     def collect_tracks(self, suffix="wav"):
         tracks_dir = self.song_dir / "tracks"
+        
+        # get all the audio files
         path_tracks = [f for f in tracks_dir.glob(f"*.{suffix}") if f.is_file()]
 
         for cur_path_tracks in path_tracks:
             logger.info(f"Adding track: {cur_path_tracks.name}...")
             file_info = sf.info(cur_path_tracks)
 
+            # extract voice and instrument from file name
             voice, instrument = cur_path_tracks.stem.split("_")
+
+            cur_path_f0 = self.song_dir / "annotations" / f"{cur_path_tracks.stem}_f0.csv"
+            cur_path_notes = self.song_dir / "annotations" / f"{cur_path_tracks.stem}_notes.csv"
+
+            if not cur_path_f0.is_file():
+                cur_path_f0 = None
+
+            if not cur_path_notes.is_file():
+                cur_path_notes = None
 
             cur_track = Track(
                 path_audio=cur_path_tracks,
+                path_f0=cur_path_f0,
+                path_notes=cur_path_notes,
                 num_channels=file_info.channels,
                 min_samples=file_info.frames,
                 sample_rate=file_info.samplerate,
