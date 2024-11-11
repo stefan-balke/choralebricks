@@ -55,11 +55,7 @@ class Song:
     def __repr__(self):
         # TODO: Would be nice to have this parameterized by NUM_VOICES
         return f"{self.id}, " \
-               f"#Tracks: {len(self.tracks)}, " \
-               f"{{1: {self.tracks[0].instrument}, " \
-               f"2: {self.tracks[1].instrument}, " \
-               f"3: {self.tracks[2].instrument}, " \
-               f"4: {self.tracks[3].instrument}}}"
+               f"#Tracks: {len(self.tracks)}, "
 
     def collect_tracks(self, suffix="wav"):
         tracks_dir = self.song_dir / "tracks"
@@ -110,7 +106,8 @@ class SongDB:
 
         if root_dir is None:
             if "CHORALEDB_PATH" in os.environ:
-                self.root_dir = os.environ["CHORALEDB_PATH"]
+                self.root_dir = Path(os.environ["CHORALEDB_PATH"])
+                print(self.root_dir)
             else:
                 raise RuntimeError("Variable `CHORALEDB_PATH` has not been set.")
         else:
@@ -128,9 +125,9 @@ class SongDB:
             self.songs.append(cur_song)
 
 
-class TrackSelector(ABC):
+class Ensemble(ABC):
     """
-    Abstract Base Class for a track selector.
+    Abstract Base Class for an ensemble selector.
 
     Don't use directly, only inherit.
     """
@@ -140,13 +137,16 @@ class TrackSelector(ABC):
         pass
 
 
-class TrackSelectorRandom(TrackSelector):
+class EnsembleRandom(Ensemble):
     def __init__(
         self,
         song: Song,
     ):
         self.song = copy.deepcopy(song)
         self.filter_tracks()
+
+    def get_tracks(self) -> list[Track]:
+        return self.song.tracks
 
     def filter_tracks(self):
         # copy of the song with randomly fitered tracks
@@ -165,23 +165,25 @@ class TrackSelectorRandom(TrackSelector):
         self.song.tracks = [self.song.tracks[i] for i in track_choice_ids]
 
 
-class TrackSelectorPermutations(TrackSelector):
+class EnsemblePermutations(Ensemble):
     def __init__(
         self,
         song: Song,
     ):
         self.song = song
-        self.song_out = copy.deepcopy(song)
+        self.ensembles = list()
         self.tracks_by_voice: dict = dict()
 
-        self.sort_voices()
+        self._categorize_tracks_byvoices()
 
         # getting all the permutations as a cartesian product of all tracks
         # Note: Converting it to a list might get big, if more data is stored
         self._permutations: list[tuple[int]] = list(product(*self.tracks_by_voice.values()))
-        print(len(self._permutations))
 
-    def sort_voices(self):
+    def _categorize_tracks_byvoices(self):
+        """
+        Categorize the voices in the respective bucket 1, 2, 3, or 4, based on the filename.
+        """
         # for each track, get the associated voice
         voices: list[int] = [cur_track.voice for cur_track in self.song.tracks]
 
@@ -196,18 +198,26 @@ class TrackSelectorPermutations(TrackSelector):
                 self.tracks_by_voice[str(cur_voice)].append(cur_idc)
 
     def filter_tracks(self, track_choice_ids):
-        logger.info(f"Track selection in {self.song.id}")
-
+        """
+        Filter the tracks based on the chosen ensemble permutation.
+        """
         # collate tracks
-        self.song_out.tracks = [self.song.tracks[i] for i in track_choice_ids]
+        return [self.song.tracks[i] for i in track_choice_ids]
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> list[Track]:
         track_choice_ids = self._permutations[index]
         
         # filter the tracks to the permuation selection
-        self.filter_tracks(track_choice_ids=track_choice_ids)
+        selected_tracks = self.filter_tracks(track_choice_ids=track_choice_ids)
 
-        return self.song_out
+        logger.info(f"Returning ensemble: " \
+                    f"{selected_tracks[0].instrument}, " \
+                    f"{selected_tracks[1].instrument}, " \
+                    f"{selected_tracks[2].instrument}, " \
+                    f"{selected_tracks[3].instrument}" \
+                   )
+
+        return selected_tracks
     
     def __len__(self):
         return len(self._permutations)
@@ -234,22 +244,22 @@ class Mixer(ABC):
 class MixerSimple(Mixer):
     def __init__(
         self,
-        song: Song,
+        tracks: list[Track],
     ):
-        self.song = song
+        self.tracks = tracks
 
     def get_mix(self):
         """Mix tracks together by sum(tracks)/num_tracks"""
         logger.info("Mixing...")
         track_audio = []
 
-        track_samplerates = [cur_track.sample_rate for cur_track in self.song.tracks]
+        track_samplerates = [cur_track.sample_rate for cur_track in self.tracks]
         try:
             assert all(x == track_samplerates[0] for x in track_samplerates) if track_samplerates else True
         except AssertionError:
             logger.error("Not all track samplerates are equal!")
 
-        for cur_track in self.song.tracks:
+        for cur_track in self.tracks:
             audio, _ = sf.read(cur_track.path_audio)
             track_audio.append(audio)
 
