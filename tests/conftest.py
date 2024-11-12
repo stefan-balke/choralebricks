@@ -12,11 +12,11 @@
 
 import pytest
 
-from choralebricks.dataset import SongDB
+from choralebricks.dataset import EnsemblePermutations, SongDB
 
 
 @pytest.fixture(name="choralebricks")
-def fixture_beatles():
+def songdb():
     """ChoraleBricks Dataset"""
     choralebricks = SongDB()
     yield choralebricks
@@ -32,3 +32,9 @@ def tracks(choralebricks):
 def songs(choralebricks):
     """All Dataset Songs"""
     return choralebricks.songs
+
+
+@pytest.fixture
+def ensembles(choralebricks):
+    """All Possible Ensemble Permutations"""
+    return [ens for song in choralebricks.songs for ens in EnsemblePermutations(song)]
