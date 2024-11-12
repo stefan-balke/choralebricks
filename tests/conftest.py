@@ -10,9 +10,25 @@
 #     ...       # teardown code
 
 
+import os
+
 import pytest
 
 from choralebricks.dataset import EnsemblePermutations, SongDB
+
+
+def pytest_collection_modifyitems(config, items):
+    """Test if CHORALEDB_PATH is set or skip the test."""
+    # Define the required environment variable name
+    required_env_var = "CHORALEDB_PATH"
+
+    # Check if the required environment variable is set
+    if not os.getenv(required_env_var):
+        # If not set, skip all collected tests
+        skip_reason = f"Environment variable '{required_env_var}' is not set. Skipping tests."
+        skip_marker = pytest.mark.skip(reason=skip_reason)
+        for item in items:
+            item.add_marker(skip_marker)
 
 
 @pytest.fixture(name="choralebricks")
@@ -36,5 +52,7 @@ def songs(choralebricks):
 
 @pytest.fixture
 def ensembles(choralebricks):
+    """All Possible Ensemble Permutations"""
+    return [ens for song in choralebricks.songs for ens in EnsemblePermutations(song)]
     """All Possible Ensemble Permutations"""
     return [ens for song in choralebricks.songs for ens in EnsemblePermutations(song)]
