@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from choralebricks.dataset import SongDB
@@ -41,6 +42,15 @@ def test_files_not_empty(track):
 @pytest.mark.parametrize("track", TRACKS)
 def test_track_suffix(track):
     """Test track suffix."""
-    assert Path(track.path_audio).suffix != "wav"
-    assert Path(track.path_f0).suffix != "csv"
-    assert Path(track.path_notes).suffix != "csv"
+    assert Path(track.path_audio).suffix == ".wav"
+    assert Path(track.path_f0).suffix == ".csv"
+    assert Path(track.path_notes).suffix == ".csv"
+
+
+@pytest.mark.parametrize("track", TRACKS)
+def test_csv_headers(track):
+    """Test CSV file headers"""
+    f0_header = pd.read_csv(track.path_f0).columns
+    notes_header = pd.read_csv(track.path_notes).columns
+    assert list(f0_header) == ['TIME', 'VALUE', 'LABEL']
+    assert list(notes_header) == ['TIME', 'VALUE', 'DURATION', 'LEVEL', 'LABEL']
