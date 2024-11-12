@@ -54,5 +54,3 @@ def songs(choralebricks):
 def ensembles(choralebricks):
     """All Possible Ensemble Permutations"""
     return [ens for song in choralebricks.songs for ens in EnsemblePermutations(song)]
-    """All Possible Ensemble Permutations"""
-    return [ens for song in choralebricks.songs for ens in EnsemblePermutations(song)]
