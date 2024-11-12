@@ -8,6 +8,7 @@ import pytest
 from choralebricks.dataset import SongDB
 
 TRACKS = [track for song in SongDB().songs for track in song.tracks]
+track_ids = [f"{track.path_audio.parts[-3]}-{track.path_audio.stem}" for track in TRACKS]
 
 
 def test_number_of_songs(songs):
@@ -15,7 +16,7 @@ def test_number_of_songs(songs):
     assert len(songs) == 2
 
 
-@pytest.mark.parametrize("track", TRACKS)
+@pytest.mark.parametrize("track", TRACKS, ids=track_ids)
 def test_paths_not_none(track):
     """Test paths for each track"""
     assert track.path_audio is not None
@@ -23,7 +24,7 @@ def test_paths_not_none(track):
     assert track.path_notes is not None
 
 
-@pytest.mark.parametrize("track", TRACKS)
+@pytest.mark.parametrize("track", TRACKS, ids=track_ids)
 def test_files_exist(track):
     """Test files exist"""
     assert Path(track.path_audio).exists()
@@ -31,7 +32,7 @@ def test_files_exist(track):
     assert Path(track.path_notes).exists()
 
 
-@pytest.mark.parametrize("track", TRACKS)
+@pytest.mark.parametrize("track", TRACKS, ids=track_ids)
 def test_files_not_empty(track):
     """Test files are not empty"""
     assert Path(track.path_audio).stat().st_size != 0
@@ -39,7 +40,7 @@ def test_files_not_empty(track):
     assert Path(track.path_notes).stat().st_size != 0
 
 
-@pytest.mark.parametrize("track", TRACKS)
+@pytest.mark.parametrize("track", TRACKS, ids=track_ids)
 def test_track_suffix(track):
     """Test track suffix."""
     assert Path(track.path_audio).suffix == ".wav"
@@ -47,7 +48,7 @@ def test_track_suffix(track):
     assert Path(track.path_notes).suffix == ".csv"
 
 
-@pytest.mark.parametrize("track", TRACKS)
+@pytest.mark.parametrize("track", TRACKS, ids=track_ids)
 def test_csv_headers(track):
     """Test CSV file headers"""
     f0_header = pd.read_csv(track.path_f0).columns
