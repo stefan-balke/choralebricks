@@ -8,11 +8,36 @@ import pandas as pd
 import pytest
 import soundfile as sf
 
-from choralebricks.dataset import SongDB
+from choralebricks.dataset import SongDB, EnsemblePermutations
 
 TRACKS = [track for song in SongDB().songs for track in song.tracks]
 tr_ids = [f"{track.song_id}-{track.path_audio.stem}" for track in TRACKS]
 # TODO: There could be a track.stem (str or property of voice and instrument).
+
+
+@pytest.fixture(name="choralebricks")
+def songdb():
+    """ChoraleBricks Dataset"""
+    choralebricks = SongDB()
+    yield choralebricks
+
+
+@pytest.fixture
+def tracks(choralebricks):
+    """All Dataset Tracks"""
+    return [track for song in choralebricks.songs for track in song.tracks]
+
+
+@pytest.fixture
+def songs(choralebricks):
+    """All Dataset Songs"""
+    return choralebricks.songs
+
+
+@pytest.fixture
+def ensembles(choralebricks):
+    """All Possible Ensemble Permutations"""
+    return [ens for song in choralebricks.songs for ens in EnsemblePermutations(song)]
 
 
 def test_number_of_songs(songs):
@@ -23,7 +48,7 @@ def test_number_of_songs(songs):
 def test_number_of_ensembles(ensembles):
     """Test number of ensembles"""
     assert len(ensembles) == 321
-    
+
 
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
 def test_paths_audio_not_none(track):

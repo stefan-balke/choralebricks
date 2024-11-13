@@ -14,8 +14,6 @@ import os
 
 import pytest
 
-from choralebricks.dataset import EnsemblePermutations, SongDB
-
 
 def pytest_collection_modifyitems(config, items):
     """Test if CHORALEDB_PATH is set or skip the test."""
@@ -34,28 +32,3 @@ def pytest_collection_modifyitems(config, items):
             # Check if the test belongs to the specified file
             if target_file in str(item.fspath):
                 item.add_marker(skip_marker)
-
-
-@pytest.fixture(name="choralebricks")
-def songdb():
-    """ChoraleBricks Dataset"""
-    choralebricks = SongDB()
-    yield choralebricks
-
-
-@pytest.fixture
-def tracks(choralebricks):
-    """All Dataset Tracks"""
-    return [track for song in choralebricks.songs for track in song.tracks]
-
-
-@pytest.fixture
-def songs(choralebricks):
-    """All Dataset Songs"""
-    return choralebricks.songs
-
-
-@pytest.fixture
-def ensembles(choralebricks):
-    """All Possible Ensemble Permutations"""
-    return [ens for song in choralebricks.songs for ens in EnsemblePermutations(song)]

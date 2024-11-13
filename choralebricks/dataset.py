@@ -37,9 +37,9 @@ class Track(BaseModel):
     @field_validator("instrument", mode="before")
     def set_instrument_type(cls, v, values):
         if v in INSTRUMENTS_BRASS:
-            values["instrument_type"] = InstrumentType.BRASS
+            cls.instrument_type = InstrumentType.BRASS
         elif v in INSTRUMENTS_WOODWIND:
-            values["instrument_type"] = InstrumentType.WOODWIND
+            cls.instrument_type = InstrumentType.WOODWIND
         return v
 
 
