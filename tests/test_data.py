@@ -1,5 +1,7 @@
-"""Test ideas from Peter"""
-
+"""
+All tests related to the data itself: WAV, CSVs, etc.
+Including sanity checks on the annotations to avoid export errors etc.
+"""
 from pathlib import Path
 
 import pandas as pd
@@ -9,26 +11,35 @@ import soundfile as sf
 from choralebricks.dataset import SongDB
 
 TRACKS = [track for song in SongDB().songs for track in song.tracks]
-tr_ids = [f"{track.path_audio.parts[-3]}-{track.path_audio.stem}" for track in TRACKS]
-# TODO: There could be easier access to song.id from track.
+tr_ids = [f"{track.song_id}-{track.path_audio.stem}" for track in TRACKS]
 # TODO: There could be a track.stem (str or property of voice and instrument).
 
 
 def test_number_of_songs(songs):
     """Test number of songs"""
-    assert len(songs) == 2
+    assert len(songs) == 4
 
 
 def test_number_of_ensembles(ensembles):
     """Test number of ensembles"""
-    assert len(ensembles) == 309
+    assert len(ensembles) == 321
+    
+
+@pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
+def test_paths_audio_not_none(track):
+    """Test paths for each track"""
+    assert track.path_audio is not None
 
 
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
-def test_paths_not_none(track):
+def test_paths_f0_not_none(track):
     """Test paths for each track"""
-    assert track.path_audio is not None
     assert track.path_f0 is not None
+
+
+@pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
+def test_paths_notes_not_none(track):
+    """Test paths for each track"""
     assert track.path_notes is not None
 
 

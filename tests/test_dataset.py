@@ -1,3 +1,6 @@
+"""
+All tests related to dataset.py and the involved logic.
+"""
 import pytest
 from choralebricks.dataset import SongDB
 

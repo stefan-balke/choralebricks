@@ -2,7 +2,7 @@ from typing import Any, Optional, Union
 import logging
 import os
 import copy
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from pathlib import Path
 from abc import ABC, abstractmethod
 import numpy as np
@@ -20,24 +20,27 @@ class Track(BaseModel):
     Represents a track and its metadata.
     """
 
-    path_audio: Union[str, Path]
+    song_id: str = None
+    path_audio: Union[str, Path] = None
     path_f0: Optional[Union[str, Path]] = None
     path_notes: Optional[Union[str, Path]] = None
-    num_channels: int
-    min_samples: int
-    sample_rate: int
-    voice: int
-    instrument: Instrument = None
-    instrument_type: InstrumentType = None
+    num_channels: int = 0
+    min_samples: int = 0
+    sample_rate: int = 0
+    voice: int = 0
+    instrument: Optional[Instrument] = None
+    instrument_type: Optional[InstrumentType] = None
     player_id: Optional[str] = None
     microphone: Optional[str] = None
     room: Optional[str] = None
 
-    def __init__(self) -> None:
-        if self.instrument in INSTRUMENTS_BRASS:
-            self.instrument_type = InstrumentType.BRASS
-        elif self.instrument in INSTRUMENTS_WOODWIND:
-            self.instrument_type = InstrumentType.WOODWIND
+    @validator('instrument', pre=True, always=True)
+    def set_instrument_type(cls, v, values):
+        if v in INSTRUMENTS_BRASS:
+            values['instrument_type'] = InstrumentType.BRASS
+        elif v in INSTRUMENTS_WOODWIND:
+            values['instrument_type'] = InstrumentType.WOODWIND
+        return v
 
 
 class Song:
@@ -87,6 +90,7 @@ class Song:
                 cur_path_notes = None
 
             cur_track = Track(
+                song_id=self.id,
                 path_audio=cur_path_tracks,
                 path_f0=cur_path_f0,
                 path_notes=cur_path_notes,

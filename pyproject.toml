@@ -10,6 +10,7 @@ numpy = ">=1.18.0"
 scipy = ">=1.4.0"
 soundfile = "*"
 pydantic = "*"
+pandas = "^2.2.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
