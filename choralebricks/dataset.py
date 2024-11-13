@@ -9,7 +9,8 @@ import numpy as np
 import soundfile as sf
 from itertools import product
 
-from .constants import Instrument, NUM_VOICES
+from .constants import Instrument, InstrumentType, \
+    INSTRUMENTS_BRASS, INSTRUMENTS_WOODWIND
 
 
 logger = logging.getLogger(__name__)
@@ -27,9 +28,16 @@ class Track(BaseModel):
     sample_rate: int
     voice: int
     instrument: Instrument = None
+    instrument_type: InstrumentType = None
     player_id: Optional[str] = None
     microphone: Optional[str] = None
     room: Optional[str] = None
+
+    def __init__(self) -> None:
+        if self.instrument in INSTRUMENTS_BRASS:
+            self.instrument_type = InstrumentType.BRASS
+        elif self.instrument in INSTRUMENTS_WOODWIND:
+            self.instrument_type = InstrumentType.WOODWIND
 
 
 class Song:
@@ -53,7 +61,6 @@ class Song:
         self.collect_tracks()
 
     def __repr__(self):
-        # TODO: Would be nice to have this parameterized by NUM_VOICES
         return f"{self.id}, " \
                f"#Tracks: {len(self.tracks)}, "
 

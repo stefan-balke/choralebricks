@@ -16,3 +16,28 @@ class Instrument(Enum):
     FRENCHHORN = "fho"
     TROMBONE = "tb"
     TUBA = "tba"
+
+
+class InstrumentType(Enum):
+    BRASS = "brass"
+    WOODWIND = "woodwind"
+
+
+INSTRUMENTS_BRASS = [
+    Instrument.TRUMPET,
+    Instrument.FLUEGELHORN,
+    Instrument.BARITONE,
+    Instrument.FRENCHHORN,
+    Instrument.TROMBONE,
+    Instrument.TUBA
+]
+
+
+INSTRUMENTS_WOODWIND = [
+    Instrument.FLUTE,
+    Instrument.CLARINET,
+    Instrument.CLARINET_BASS,
+    Instrument.SAX_ALTO,
+    Instrument.SAX_TENOR,
+    Instrument.SAX_BARITONE
+]
