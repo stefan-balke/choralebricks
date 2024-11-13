@@ -2,7 +2,7 @@ from typing import Any, Optional, Union
 import logging
 import os
 import copy
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 from pathlib import Path
 from abc import ABC, abstractmethod
 import numpy as np
@@ -34,12 +34,12 @@ class Track(BaseModel):
     microphone: Optional[str] = None
     room: Optional[str] = None
 
-    @validator('instrument', pre=True, always=True)
+    @field_validator("instrument", mode="before")
     def set_instrument_type(cls, v, values):
         if v in INSTRUMENTS_BRASS:
-            values['instrument_type'] = InstrumentType.BRASS
+            values["instrument_type"] = InstrumentType.BRASS
         elif v in INSTRUMENTS_WOODWIND:
-            values['instrument_type'] = InstrumentType.WOODWIND
+            values["instrument_type"] = InstrumentType.WOODWIND
         return v
 
 
