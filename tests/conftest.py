@@ -27,8 +27,13 @@ def pytest_collection_modifyitems(config, items):
         # If not set, skip all collected tests
         skip_reason = f"Environment variable '{required_env_var}' is not set. Skipping tests."
         skip_marker = pytest.mark.skip(reason=skip_reason)
+        
+        target_file = "test_data.py"
+
         for item in items:
-            item.add_marker(skip_marker)
+            # Check if the test belongs to the specified file
+            if target_file in str(item.fspath):
+                item.add_marker(skip_marker)
 
 
 @pytest.fixture(name="choralebricks")
