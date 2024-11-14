@@ -59,6 +59,14 @@ def test_number_of_ensembles(ensembles):
     assert len(ensembles) == 2 * 2 * 1 * 2
 
 
+def test_instrument_type(mockupdb):
+    """Test number of songs"""
+    
+    for cur_song in mockupdb:
+        for cur_track in cur_song.tracks:
+            assert cur_track.instrument_type != None
+
+
 def test_import_my_module():
     # Attempt to import the module
     try:

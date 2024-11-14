@@ -8,7 +8,7 @@ from typing import Any, Optional, Union
 
 import numpy as np
 import soundfile as sf
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, model_validator
 
 from .constants import (INSTRUMENTS_BRASS, INSTRUMENTS_WOODWIND, Instrument,
                         InstrumentType)
@@ -28,20 +28,20 @@ class Track(BaseModel):
     min_samples: int = 0
     sample_rate: int = 0
     voice: int = 0
-    instrument: Optional[Instrument] = None
-    instrument_type: Optional[InstrumentType] = None
+    instrument: Instrument
+    instrument_type: InstrumentType = None
     player_id: Optional[str] = None
     microphone: Optional[str] = None
     room: Optional[str] = None
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def set_instrument_type(cls, values):
         """Set instrument_type based on instrument."""
-        instrument = values.get('instrument')
+        instrument = values.get("instrument")
         if instrument in [x.value for x in INSTRUMENTS_BRASS]:
-            values['instrument_type'] = InstrumentType.BRASS
+            values["instrument_type"] = InstrumentType.BRASS
         elif instrument in [x.value for x in INSTRUMENTS_WOODWIND]:
-            values['instrument_type'] = InstrumentType.WOODWIND
+            values["instrument_type"] = InstrumentType.WOODWIND
         return values
 
 
