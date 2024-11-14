@@ -16,19 +16,13 @@ import pytest
 
 
 def pytest_collection_modifyitems(config, items):
-    """Test if CHORALEDB_PATH is set or skip the test."""
+    """Ignore tests if CHORALEDB_PATH is not set."""
     # Define the required environment variable name
     required_env_var = "CHORALEDB_PATH"
 
     # Check if the required environment variable is set
     if not os.getenv(required_env_var):
-        # If not set, skip all collected tests
-        skip_reason = f"Environment variable '{required_env_var}' is not set. Skipping tests."
-        skip_marker = pytest.mark.skip(reason=skip_reason)
-        
+        # If not set, remove all tests in the specified file from collection
         target_file = "test_data.py"
 
-        for item in items:
-            # Check if the test belongs to the specified file
-            if target_file in str(item.fspath):
-                item.add_marker(skip_marker)
+        items[:] = [item for item in items if target_file not in str(item.fspath)]
