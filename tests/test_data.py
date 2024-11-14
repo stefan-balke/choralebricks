@@ -1,18 +1,22 @@
-"""
-All tests related to the data itself: WAV, CSVs, etc.
-Including sanity checks on the annotations to avoid export errors etc.
-"""
+import os
 from pathlib import Path
 
 import pandas as pd
 import pytest
 import soundfile as sf
 
-from choralebricks.dataset import SongDB, EnsemblePermutations
+from choralebricks.dataset import EnsemblePermutations, SongDB
 
-TRACKS = [track for song in SongDB().songs for track in song.tracks]
-tr_ids = [f"{track.song_id}-{track.path_audio.stem}" for track in TRACKS]
-# TODO: There could be a track.stem (str or property of voice and instrument).
+# Check for the environment variable CHORALEDB_PATH
+choraledb_path = os.getenv('CHORALEDB_PATH')
+
+if choraledb_path:
+    TRACKS = [track for song in SongDB().songs for track in song.tracks]
+    tr_ids = [f"{track.song_id}-{track.path_audio.stem}" for track in TRACKS]
+    # TODO: There could be a track.stem (str or property of voice and instrument).
+else:
+    TRACKS = []
+    tr_ids = []
 
 
 @pytest.fixture(name="choralebricks")
