@@ -1,17 +1,17 @@
-from typing import Any, Optional, Union
+import copy
 import logging
 import os
-import copy
-from pydantic import BaseModel, field_validator
-from pathlib import Path
 from abc import ABC, abstractmethod
+from itertools import product
+from pathlib import Path
+from typing import Any, Optional, Union
+
 import numpy as np
 import soundfile as sf
-from itertools import product
+from pydantic import BaseModel, root_validator
 
-from .constants import Instrument, InstrumentType, \
-    INSTRUMENTS_BRASS, INSTRUMENTS_WOODWIND
-
+from .constants import (INSTRUMENTS_BRASS, INSTRUMENTS_WOODWIND, Instrument,
+                        InstrumentType)
 
 logger = logging.getLogger(__name__)
 
@@ -34,13 +34,15 @@ class Track(BaseModel):
     microphone: Optional[str] = None
     room: Optional[str] = None
 
-    @field_validator("instrument", mode="before")
-    def set_instrument_type(cls, v, values):
-        if v in INSTRUMENTS_BRASS:
-            cls.instrument_type = InstrumentType.BRASS
-        elif v in INSTRUMENTS_WOODWIND:
-            cls.instrument_type = InstrumentType.WOODWIND
-        return v
+    @root_validator(pre=True)
+    def set_instrument_type(cls, values):
+        """Set instrument_type based on instrument."""
+        instrument = values.get('instrument')
+        if instrument in [x.value for x in INSTRUMENTS_BRASS]:
+            values['instrument_type'] = InstrumentType.BRASS
+        elif instrument in [x.value for x in INSTRUMENTS_WOODWIND]:
+            values['instrument_type'] = InstrumentType.WOODWIND
+        return values
 
 
 class Song:
