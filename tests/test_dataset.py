@@ -12,12 +12,12 @@ def mockupdb():
   
     def mocktrack(
         voice: int,
-        instrument: Instrument
+        instrument: str
     ):
         
         track = Track(
             song_id="test_song_01",
-            path_audio=f"{instrument.value}_{voice}.wav",
+            path_audio=f"{instrument}_{voice}.wav",
             num_channels=1,
             sample_rate=44100,
             min_samples=441000,
@@ -28,13 +28,13 @@ def mockupdb():
         return track
  
     song01_tracks = [
-        mocktrack(1, Instrument.TRUMPET),
-        mocktrack(1, Instrument.CLARINET),
-        mocktrack(2, Instrument.TRUMPET),
-        mocktrack(2, Instrument.CLARINET),
-        mocktrack(3, Instrument.BARITONE),
-        mocktrack(4, Instrument.BARITONE),
-        mocktrack(4, Instrument.TUBA),
+        mocktrack(1, "tp"),
+        mocktrack(1, "cl"),
+        mocktrack(2, "tp"),
+        mocktrack(2, "cl"),
+        mocktrack(3, "bar"),
+        mocktrack(4, "bar"),
+        mocktrack(4, "tba"),
     ]
 
     song_01 = Song(Path("song_01"))
