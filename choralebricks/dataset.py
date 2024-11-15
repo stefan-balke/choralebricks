@@ -38,9 +38,9 @@ class Track(BaseModel):
     def set_instrument_type(cls, values):
         """Set instrument_type based on instrument."""
         instrument = values.get("instrument")
-        if instrument in [x.value for x in INSTRUMENTS_BRASS]:
+        if instrument in INSTRUMENTS_BRASS:
             values["instrument_type"] = InstrumentType.BRASS
-        elif instrument in [x.value for x in INSTRUMENTS_WOODWIND]:
+        elif instrument in INSTRUMENTS_WOODWIND:
             values["instrument_type"] = InstrumentType.WOODWIND
         return values
 
@@ -100,7 +100,7 @@ class Song:
                 min_samples=file_info.frames,
                 sample_rate=file_info.samplerate,
                 voice=int(voice),
-                instrument=instrument,
+                instrument=Instrument(instrument),
             )
             self.tracks.append(cur_track)
 
