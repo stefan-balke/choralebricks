@@ -84,8 +84,11 @@ def main():
     print("#Ensembles per Song")
     print(u"\u2500" * 40)
     df_songs["perm_dur"] = df_songs["n_permutations"] * df_songs["min_dur"]
+    dataset_dur = df_songs["perm_dur"].sum()
     df_songs["perm_dur"] = pd.to_datetime(df_songs["perm_dur"], unit='s').dt.strftime('%H:%M:%S')
     print(df_songs.sort_values("song_id"))
+    dataset_dur = pd.to_datetime(dataset_dur, unit='s').strftime('%H:%M:%S')
+    print(f"Total Duration: {dataset_dur}")
 
 
 if __name__ == "__main__":
