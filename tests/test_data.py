@@ -46,12 +46,12 @@ def ensembles(choralebricks):
 
 def test_number_of_songs(songs):
     """Test number of songs"""
-    assert len(songs) == 4
+    assert len(songs) == 10
 
 
 def test_number_of_ensembles(ensembles):
     """Test number of ensembles"""
-    assert len(ensembles) == 321
+    assert len(ensembles) == 417
 
 
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
