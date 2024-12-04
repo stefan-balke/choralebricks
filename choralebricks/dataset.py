@@ -4,7 +4,7 @@ import os
 from abc import ABC, abstractmethod
 from itertools import product
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Iterator, Optional, Union
 
 import numpy as np
 import soundfile as sf
@@ -14,6 +14,7 @@ from .constants import (INSTRUMENTS_BRASS, INSTRUMENTS_WOODWIND, Instrument,
                         InstrumentType)
 
 logger = logging.getLogger(__name__)
+
 
 class Track(BaseModel):
     """
@@ -62,16 +63,50 @@ class Song:
         self.song_dir: Path = song_dir
         self.id: str = self.song_dir.name
         self.tracks: list[Track] = []
+        self._current_index = 0
 
         self.collect_tracks()
 
     def __repr__(self):
-        return f"{self.id}, " \
-               f"#Tracks: {len(self.tracks)}, "
+        return f"{self.id}, " f"#Tracks: {len(self.tracks)}"
+
+    def __len__(self):
+        return len(self.tracks)
+
+    def __iter__(self) -> Iterator[Track]:
+        self._current_index = 0
+        return self
+
+    def __next__(self) -> Track:
+        if self._current_index < len(self.tracks):
+            track = self.tracks[self._current_index]
+            self._current_index += 1
+            return track
+        raise StopIteration
+
+    def __getitem__(self, key: Union[int, str]) -> Track:
+        if isinstance(key, str):
+            try:
+                voice, inst = key.split("_")
+                voice = int(voice)
+            except ValueError as exc:
+                raise KeyError(f"Track key '{key}' is not in the correct format e.g. '01_tp'.") from exc
+
+            for track in self.tracks:
+                if int(track.voice) == int(voice):
+                    return track
+            raise KeyError(f"Track with id '{key}' not found.")
+        elif isinstance(key, int):
+            try:
+                return self.tracks[key]
+            except IndexError as exc:
+                raise IndexError(f"Index '{key}' is out of range.") from exc
+        else:
+            raise TypeError("Key must be a string (track_id) or an integer (index).")
 
     def collect_tracks(self, suffix="wav"):
         tracks_dir = self.song_dir / "tracks"
-        
+
         # get all the audio files
         path_tracks = [f for f in tracks_dir.glob(f"*.{suffix}") if f.is_file()]
 
@@ -110,11 +145,7 @@ class SongDB:
     Represents the Song Database. Collects songs from a pre-defined folder structure.
     """
 
-    def __init__(
-        self,
-        root_dir: str=None,
-        **kwargs
-    ) -> None:
+    def __init__(self, root_dir: str = None, **kwargs) -> None:
         super().__init__(**kwargs)
 
         if root_dir is None:
@@ -128,6 +159,35 @@ class SongDB:
 
         self.songs: list[Song] = []
         self.collect_songs()
+        self._current_index = 0
+
+    def __len__(self):
+        return len(self.songs)
+
+    def __iter__(self) -> Iterator[Song]:
+        self._current_index = 0
+        return self
+
+    def __next__(self) -> Song:
+        if self._current_index < len(self.songs):
+            song = self.songs[self._current_index]
+            self._current_index += 1
+            return song
+        raise StopIteration
+
+    def __getitem__(self, key: Union[int, str]) -> Song:
+        if isinstance(key, str):
+            for song in self.songs:
+                if song.id == key:
+                    return song
+            raise KeyError(f"Song with id '{key}' not found.")
+        elif isinstance(key, int):
+            try:
+                return self.songs[key]
+            except IndexError as exc:
+                raise IndexError(f"Index '{key}' is out of range.") from exc
+        else:
+            raise TypeError("Key must be a string (song_id) or an integer (index).")
 
     def collect_songs(self):
         path_songs = [f for f in self.root_dir.glob("*") if f.is_dir()]
@@ -151,10 +211,7 @@ class Ensemble(ABC):
 
 
 class EnsembleRandom(Ensemble):
-    def __init__(
-        self,
-        song: Song,
-    ):
+    def __init__(self, song: Song):
         self.song = copy.deepcopy(song)
         self.filter_tracks()
 
@@ -179,10 +236,7 @@ class EnsembleRandom(Ensemble):
 
 
 class EnsemblePermutations(Ensemble):
-    def __init__(
-        self,
-        song: Song,
-    ):
+    def __init__(self, song: Song):
         self.song = song
         self.ensembles = list()
         self.tracks_by_voice: dict = dict()
@@ -219,19 +273,20 @@ class EnsemblePermutations(Ensemble):
 
     def __getitem__(self, index) -> list[Track]:
         track_choice_ids = self._permutations[index]
-        
+
         # filter the tracks to the permuation selection
         selected_tracks = self.filter_tracks(track_choice_ids=track_choice_ids)
 
-        logger.info(f"Returning ensemble: " \
-                    f"{selected_tracks[0].instrument}, " \
-                    f"{selected_tracks[1].instrument}, " \
-                    f"{selected_tracks[2].instrument}, " \
-                    f"{selected_tracks[3].instrument}" \
-                   )
+        logger.info(
+            f"Returning ensemble: "
+            f"{selected_tracks[0].instrument}, "
+            f"{selected_tracks[1].instrument}, "
+            f"{selected_tracks[2].instrument}, "
+            f"{selected_tracks[3].instrument}"
+        )
 
         return selected_tracks
-    
+
     def __len__(self):
         return len(self._permutations)
 
@@ -255,10 +310,7 @@ class Mixer(ABC):
 
 
 class MixerSimple(Mixer):
-    def __init__(
-        self,
-        tracks: list[Track],
-    ):
+    def __init__(self, tracks: list[Track]):
         self.tracks = tracks
 
     def get_mix(self):
