@@ -27,6 +27,9 @@ def read_f0(
 ) -> pd.DataFrame:
     expected_columns = ["TIME", "VALUE", "LABEL"]
 
+    if path_csv == None:
+        raise FileNotFoundError(f"File not found: {path_csv}")
+
     if path_csv.exists():
         df = pd.read_csv(path_csv, sep=",")
         try:
@@ -48,10 +51,13 @@ def read_f0(
 
 def read_notes(
     path_csv: Path,
-    A4: int=440,
+    A4: float=440.0,
     rename_cols: bool=True
 ) -> pd.DataFrame:
     expected_columns = ["TIME", "VALUE", "DURATION", "LEVEL", "LABEL"]
+
+    if path_csv == None:
+        raise FileNotFoundError(f"File not found: {path_csv}")
 
     if path_csv.exists():
         df = pd.read_csv(path_csv, sep=",")
@@ -72,3 +78,59 @@ def read_notes(
         })
 
     return df
+
+
+def read_sheet_music_csv(
+    path_csv: Path,
+    A4: float=440.0
+) -> pd.DataFrame:
+    expected_columns = [
+        "start_meas",
+        "end_meas",
+        "duration_quarterLength",
+        "pitch",
+        "pitchName",
+        "timeSig",
+        "articulation",
+        "expression",
+        "grace",
+        "part",
+        "midiChannel",
+        "midiProgram",
+        "volume",
+        "pitchWritten",
+        "pitchNameWritten",
+        "quarternoteoffset",
+        "quarterNoteBPM"
+    ]
+
+    if path_csv == None:
+        raise FileNotFoundError(f"File not found: {path_csv}")
+
+    if path_csv.exists():
+        df = pd.read_csv(path_csv, sep=";")
+        try:
+            validate_schema(df, expected_columns)
+        except SchemaValidationError as e:
+            print(f"Error: {e}")
+    else:
+        raise FileNotFoundError(f"File not found: {path_csv}")
+
+    df["dur_meas"] = df["end_meas"] - df["start_meas"]
+    df["pitch_center_freq"] = A4 * 2**((df["pitch"] - 69) / 12)
+
+    return df
+
+
+def voice2name(voice: int) -> str:
+    # --> USE ENUM!
+    if voice == 1:
+        name = "S"
+    if voice == 2:
+        name = "A"
+    if voice == 3:
+        name = "T"
+    if voice == 4:
+        name = "B"
+
+    return name
