@@ -6,6 +6,7 @@ import pytest
 import soundfile as sf
 
 from choralebricks.dataset import EnsemblePermutations, SongDB
+from choralebricks.utils import read_f0, read_notes
 
 # Check for the environment variable CHORALEDB_PATH
 choraledb_path = os.getenv('CHORALEDB_PATH')
@@ -99,8 +100,8 @@ def test_track_suffix(track):
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
 def test_csv_headers(track):
     """Test CSV file headers"""
-    f0_head = pd.read_csv(track.path_f0).columns if track.path_f0 else []
-    notes_head = pd.read_csv(track.path_notes).columns if track.path_notes else []
+    f0_head = read_f0(track.path_f0, rename_cols=False).columns if track.path_f0 else []
+    notes_head = read_notes(track.path_notes, rename_cols=False).columns if track.path_notes else []
     assert list(f0_head) == ['TIME', 'VALUE', 'LABEL']
     assert list(notes_head) == ['TIME', 'VALUE', 'DURATION', 'LEVEL', 'LABEL']
 
