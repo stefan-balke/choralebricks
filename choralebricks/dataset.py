@@ -25,6 +25,9 @@ class Track(BaseModel):
     path_audio: Union[str, Path] = None
     path_f0: Optional[Union[str, Path]] = None
     path_notes: Optional[Union[str, Path]] = None
+    path_sheet_music_csv: Optional[Union[str, Path]] = None
+    path_sheet_music_midi: Optional[Union[str, Path]] = None
+    path_sheet_music_mxml: Optional[Union[str, Path]] = None
     num_channels: int = 0
     min_samples: int = 0
     sample_rate: int = 0
@@ -119,6 +122,9 @@ class Song:
 
             cur_path_f0 = self.song_dir / "annotations" / f"{cur_path_tracks.stem}_f0.csv"
             cur_path_notes = self.song_dir / "annotations" / f"{cur_path_tracks.stem}_notes.csv"
+            cur_path_sheet_music_csv = self.song_dir / f"{self.id}.csv"
+            cur_path_sheet_music_midi = self.song_dir / f"{self.id}.mid"
+            cur_path_sheet_music_mxml = self.song_dir / f"{self.id}.musicxml"
 
             if not cur_path_f0.is_file():
                 cur_path_f0 = None
@@ -131,6 +137,9 @@ class Song:
                 path_audio=cur_path_tracks,
                 path_f0=cur_path_f0,
                 path_notes=cur_path_notes,
+                path_sheet_music_csv=cur_path_sheet_music_csv,
+                path_sheet_music_midi=cur_path_sheet_music_midi,
+                path_sheet_music_mxml=cur_path_sheet_music_mxml,
                 num_channels=file_info.channels,
                 min_samples=file_info.frames,
                 sample_rate=file_info.samplerate,
