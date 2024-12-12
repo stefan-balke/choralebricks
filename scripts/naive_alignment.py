@@ -64,8 +64,12 @@ def main():
                     continue
 
             cur_notes = cur_notes.rename(columns={"pitch": "pitch_audio"})
+
+            song_folder = out_folder / cur_track.song_id / "alignments"
+            song_folder.mkdir(parents=True, exist_ok=True)
+
             cur_notes.to_csv(
-                out_folder / f"{cur_track.song_id}_{cur_track.path_audio.stem}.csv",
+                song_folder / f"{cur_track.path_audio.stem}.csv",
                 sep=";",
                 index=False
             )
