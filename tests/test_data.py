@@ -7,6 +7,8 @@ import soundfile as sf
 
 from choralebricks.dataset import EnsemblePermutations, SongDB
 from choralebricks.utils import read_f0, read_notes
+from choralebricks.utils import read_f0
+
 
 # Check for the environment variable CHORALEDB_PATH
 choraledb_path = os.getenv('CHORALEDB_PATH')
@@ -131,3 +133,9 @@ def test_track_len_per_song(songs):
                 data, _ = sf.read(track.path_audio)
                 track_lengths.append(len(data))
         assert len(set(track_lengths)) <= 1, f"Not all audio files of {song.id} have the same length."
+
+@pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
+def test_f0_trajectory(track):
+    """All F0-trajectories should have only one entry per time instance"""
+    df = read_f0(track.path_f0)
+    assert df.shape[0] == df.drop_duplicates("t").shape[0]
