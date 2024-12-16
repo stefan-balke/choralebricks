@@ -12,6 +12,9 @@ soundfile = "*"
 pydantic = "*"
 pandas = "^2.2.3"
 
+[tool.poetry.extras]
+examples = ["matplotlib"]
+
 [tool.poetry.dev-dependencies]
 pytest = "*"
 pytest-cov = "*"

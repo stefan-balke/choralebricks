@@ -30,6 +30,15 @@ In that case no arguments would need to passed to `SongDB()`.
 
 Further example scripts for different standard scenarios can be found in the `examples/` folder.
 
+## Examples
+
+As a starting point, we provide example code in the `examples/` folder.
+These require slightly more dependencies. Use:
+```
+    poetry install --with examples
+```
+for setup.
+
 ## Glossary
 
 **song**
