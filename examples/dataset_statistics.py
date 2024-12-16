@@ -1,9 +1,15 @@
 import logging
 from pathlib import Path
 import pandas as pd
+import numpy as np
 import soundfile as sf
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 
 from choralebricks.dataset import SongDB, EnsemblePermutations
+from choralebricks.constants import Instrument, Voices, VOICE_COLORS
+from choralebricks.utils import voice_to_name, get_voice_from_int
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +87,15 @@ def main():
     )
 
     print(u"\u2500" * 40)
+    print("#Tracks per Voice and Instrument")
+    print(u"\u2500" * 40)
+    print(df_tracks.groupby(["voice", "instrument"]).agg(
+        size=("audio_dur", "size"),
+        sum=("audio_dur", "sum"),
+        )
+    )
+
+    print(u"\u2500" * 40)
     print("#Ensembles per Song")
     print(u"\u2500" * 40)
     df_songs["perm_dur"] = df_songs["n_permutations"] * df_songs["min_dur"]
@@ -89,6 +104,62 @@ def main():
     print(df_songs.sort_values("song_id"))
     dataset_dur = pd.to_datetime(dataset_dur, unit='s').strftime('%H:%M:%S')
     print(f"Total Duration: {dataset_dur}")
+
+    grouped = df_tracks.groupby(["voice", "instrument"]).size()
+    grouped = grouped.reset_index().sort_values(by=["voice", 0], ascending=True)
+    grouped = grouped.set_index(["voice", "instrument"])
+    
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    y_tick_labels = []
+    legend_entries = []
+    for cur_i, (cur_idx, cur_box) in enumerate(grouped.iterrows()):
+        cur_voice = get_voice_from_int(cur_idx[0])
+        cur_name = voice_to_name(cur_voice)
+        cur_instrument = Instrument(cur_idx[1])
+        cur_color = VOICE_COLORS[cur_voice]
+
+        ax.add_patch(
+            plt.Rectangle(
+                (0, cur_i - 0.5),
+                cur_box.values[0],
+                1,
+                color=cur_color,
+                alpha=0.3
+            )
+        )
+        
+        y_tick_labels.append(f"{cur_instrument.value}")
+
+    for cur_voice in Voices:
+        legend_entries.append(
+            Patch(
+                facecolor=VOICE_COLORS[cur_voice],
+                edgecolor=VOICE_COLORS[cur_voice],
+                alpha=0.3,
+                label=voice_to_name(cur_voice.value)
+            )
+        )
+
+    # Customize the legend and axes
+    fig.legend(handles=legend_entries, loc="upper right", fontsize=12)
+    ax.set_title("Number of Tracks per Voice and Instrument", fontsize=16)
+    ax.set_xlabel("#Tracks", fontsize=14)
+    ax.set_ylabel("Instrument", fontsize=14)
+    ax.set_xlim(0, 11)
+    ax.spines['top'].set_visible(False)  # Remove the top spine
+    ax.spines['right'].set_visible(False)  # Remove the right spine
+    ax.set_ylim(-1, grouped.shape[0])
+    ax.set_yticks(np.arange(len(y_tick_labels)))
+    ax.set_yticklabels(y_tick_labels)
+    ax.invert_yaxis()
+    plt.tight_layout()
+
+    plt.savefig('tracks_per_voice_instrument.pdf')
+
+    # Show the plot
+    plt.show()
 
 
 if __name__ == "__main__":
