@@ -1,7 +1,14 @@
 from enum import Enum
+import matplotlib.pyplot as plt
 
 
 NUM_VOICES = 4
+
+class Voices(Enum):
+    SOPRANO = 1
+    ALTO = 2
+    TENOR = 3
+    BASS = 4
 
 class Instrument(Enum):
     FLUTE = "fl"
@@ -43,3 +50,17 @@ INSTRUMENTS_WOODWIND = [
     Instrument.SAX_TENOR,
     Instrument.SAX_BARITONE
 ]
+
+VOICE_COLORS = {
+    Voices.SOPRANO: plt.cm.tab10(3),
+    Voices.ALTO: plt.cm.tab10(2),
+    Voices.TENOR: plt.cm.tab10(1),
+    Voices.BASS: plt.cm.tab10(0)
+}
+
+VOICE_STRINGS = {
+    Voices.SOPRANO: "S",
+    Voices.ALTO: "A",
+    Voices.TENOR: "T",
+    Voices.BASS: "B"
+}

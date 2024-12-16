@@ -1,6 +1,8 @@
 import pandas as pd
 from pathlib import Path
 
+from choralebricks.constants import Voices, VOICE_STRINGS
+
 
 class SchemaValidationError(Exception):
     """Custom exception for schema validation errors."""
@@ -122,15 +124,17 @@ def read_sheet_music_csv(
     return df
 
 
-def voice2name(voice: int) -> str:
-    # --> USE ENUM!
-    if voice == 1:
-        name = "S"
-    if voice == 2:
-        name = "A"
-    if voice == 3:
-        name = "T"
-    if voice == 4:
-        name = "B"
+def voice_to_name(voice_value: int) -> str:
+    # Mapping from Voices enum to strings
+    try:
+        voice_enum = Voices(voice_value)  # Convert value to enum
+        return VOICE_STRINGS[voice_enum]  # Get the corresponding string
+    except (ValueError, KeyError):
+        return "Unknown"  # Handle invalid values
 
-    return name
+
+def get_voice_from_int(value):
+    try:
+        return Voices(value)
+    except ValueError:
+        return None
