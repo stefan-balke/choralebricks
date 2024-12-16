@@ -5,7 +5,7 @@ description = "Supporting package for the ChoraleBricks dataset."
 authors = ["Stefan Balke <stefan.balke@audiolabs-erlangen.de>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"  # Specify the compatible Python version
+python = ">=3.10"  # Specify the compatible Python version
 numpy = ">=1.18.0"
 scipy = ">=1.4.0"
 soundfile = "*"
