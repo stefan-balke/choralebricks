@@ -68,7 +68,7 @@ class Song:
         self.tracks: list[Track] = []
         self._current_index = 0
 
-        self.collect_tracks()
+        self.__collect_tracks()
 
     def __repr__(self):
         return f"{self.id}, " f"#Tracks: {len(self.tracks)}"
@@ -107,7 +107,7 @@ class Song:
         else:
             raise TypeError("Key must be a string (track_id) or an integer (index).")
 
-    def collect_tracks(self, suffix="wav"):
+    def __collect_tracks(self, suffix="wav"):
         tracks_dir = self.song_dir / "tracks"
 
         # get all the audio files
@@ -167,7 +167,7 @@ class SongDB:
             self.root_dir = Path(root_dir).expanduser()
 
         self.songs: list[Song] = []
-        self.collect_songs()
+        self.__collect_songs()
         self._current_index = 0
 
     def __len__(self):
@@ -198,7 +198,7 @@ class SongDB:
         else:
             raise TypeError("Key must be a string (song_id) or an integer (index).")
 
-    def collect_songs(self):
+    def __collect_songs(self):
         path_songs = [f for f in self.root_dir.glob("*") if f.is_dir()]
 
         for cur_path_song in path_songs:
