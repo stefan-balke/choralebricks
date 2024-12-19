@@ -64,3 +64,10 @@ VOICE_STRINGS = {
     Voices.TENOR: "T",
     Voices.BASS: "B"
 }
+
+VOICE_STRINGS_SHORT = {
+    "S": Voices.SOPRANO,
+    "A": Voices.ALTO,
+    "T": Voices.TENOR,
+    "B": Voices.BASS
+}

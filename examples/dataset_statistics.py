@@ -3,13 +3,16 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 import soundfile as sf
-import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
+import seaborn as sns
 
 from choralebricks.dataset import SongDB, EnsemblePermutations
-from choralebricks.constants import Instrument, Voices, VOICE_COLORS
-from choralebricks.utils import voice_to_name, get_voice_from_int
+from choralebricks.constants import (
+    Instrument, Voices, VOICE_COLORS, VOICE_STRINGS, VOICE_STRINGS_SHORT
+)
+from choralebricks.utils import voice_to_name, get_voice_from_int, read_sheet_music_csv
+from choralebricks.generators import tracks
 
 logger = logging.getLogger(__name__)
 
@@ -109,14 +112,13 @@ def main():
     grouped = grouped.reset_index().sort_values(by=["voice", 0], ascending=True)
     grouped = grouped.set_index(["voice", "instrument"])
     
-    # Create the plot
+    # Tracks per Instrument and Voice
     fig, ax = plt.subplots(figsize=(10, 8))
 
     y_tick_labels = []
     legend_entries = []
     for cur_i, (cur_idx, cur_box) in enumerate(grouped.iterrows()):
         cur_voice = get_voice_from_int(cur_idx[0])
-        cur_name = voice_to_name(cur_voice)
         cur_instrument = Instrument(cur_idx[1])
         cur_color = VOICE_COLORS[cur_voice]
 
@@ -158,7 +160,68 @@ def main():
 
     plt.savefig('tracks_per_voice_instrument.pdf')
 
-    # Show the plot
+    # Plot for Pitch Histograms for SATB
+    notes = {
+        Voices.SOPRANO: [],
+        Voices.ALTO: [],
+        Voices.TENOR: [],
+        Voices.BASS : []
+    }
+
+    # iterate over all available tracks and get the path to the audio file
+    for cur_track in list(tracks()):
+        cur_sheet_music = read_sheet_music_csv(cur_track.path_sheet_music_csv)
+
+        for cur_part, cur_notes in cur_sheet_music.groupby("part"):
+            notes[VOICE_STRINGS_SHORT[cur_part]].extend(cur_notes["pitch"].tolist())
+
+    fig, axes = plt.subplots(4, 1, figsize=(4, 8),sharex=True, sharey=True)
+    axes_flat = axes.ravel()
+
+    for cur_idx, cur_voice in enumerate(Voices):
+        cur_df = pd.DataFrame(notes[cur_voice], columns=["midi_pitch"])
+
+        sns.histplot(
+            cur_df['midi_pitch'],
+            bins=20,
+            stat="density",
+            kde=True,
+            color="k",
+            alpha=0.1,
+            lw=0.1,
+            ax=axes_flat[cur_idx]
+        )
+
+        # only for the count
+        ax_count = axes_flat[cur_idx].twinx()
+        sns.histplot(
+            cur_df['midi_pitch'],
+            bins=20,
+            stat="frequency",
+            color="r",
+            alpha=0,
+            lw=0,
+            ax=ax_count
+        )
+
+        sns.kdeplot(
+            cur_df['midi_pitch'],
+            fill=True,
+            color=VOICE_COLORS[cur_voice],
+            alpha=0.6,
+            ax=axes_flat[cur_idx]
+        )
+        
+        sns.despine(right=False)
+        axes_flat[cur_idx].set_xlim((35, 80))
+        ax_count.set_ylim((0, 2375))
+        ax_count.set_ylabel("#Note Events")
+        axes_flat[cur_idx].set_title(VOICE_STRINGS[cur_voice], fontsize=16)
+        axes_flat[cur_idx].set_xlabel("MIDI Pitch")
+        
+    plt.tight_layout()
+    plt.savefig('pitch_hist_SATB.pdf')
+
     plt.show()
 
 
