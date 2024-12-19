@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from pathlib import Path
 
@@ -78,6 +79,9 @@ def read_notes(
             "VALUE": "f0_mean",
             "DURATION": "t_dur"
         })
+
+    df["pitch"] = (12 * (np.log2(df["f0_mean"].values) - np.log2(A4)) + 69)
+    df["pitch"] = df["pitch"].round().astype(int)
 
     return df
 
