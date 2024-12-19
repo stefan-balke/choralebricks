@@ -11,7 +11,7 @@ from choralebricks.dataset import SongDB, EnsemblePermutations
 from choralebricks.constants import (
     Instrument, Voices, VOICE_COLORS, VOICE_STRINGS, VOICE_STRINGS_SHORT
 )
-from choralebricks.utils import voice_to_name, get_voice_from_int, read_sheet_music_csv
+from choralebricks.utils import voice_to_name, get_voice_from_int, read_notes
 from choralebricks.generators import tracks
 
 logger = logging.getLogger(__name__)
@@ -146,7 +146,7 @@ def main():
 
     # Customize the legend and axes
     fig.legend(handles=legend_entries, loc="upper right", fontsize=12)
-    ax.set_title("Number of Tracks per Voice and Instrument", fontsize=16)
+    # ax.set_title("Number of Tracks per Voice and Instrument", fontsize=16)
     ax.set_xlabel("#Tracks", fontsize=14)
     ax.set_ylabel("Instrument", fontsize=14)
     ax.set_xlim(0, 11)
@@ -168,12 +168,14 @@ def main():
         Voices.BASS : []
     }
 
-    # iterate over all available tracks and get the path to the audio file
+    # collect all played notes from the whole collection
     for cur_track in list(tracks()):
-        cur_sheet_music = read_sheet_music_csv(cur_track.path_sheet_music_csv)
+        try:
+            cur_notes = read_notes(cur_track.path_notes)
 
-        for cur_part, cur_notes in cur_sheet_music.groupby("part"):
-            notes[VOICE_STRINGS_SHORT[cur_part]].extend(cur_notes["pitch"].tolist())
+            notes[Voices(cur_track.voice)].extend(cur_notes["pitch"].tolist())
+        except FileNotFoundError:
+            print(f"Skipping {cur_track}...")
 
     fig, axes = plt.subplots(4, 1, figsize=(4, 8),sharex=True, sharey=True)
     axes_flat = axes.ravel()
@@ -213,10 +215,10 @@ def main():
         )
         
         sns.despine(right=False)
-        axes_flat[cur_idx].set_xlim((35, 80))
+        axes_flat[cur_idx].set_xlim((20, 90))
         ax_count.set_ylim((0, 2375))
         ax_count.set_ylabel("#Note Events")
-        axes_flat[cur_idx].set_title(VOICE_STRINGS[cur_voice], fontsize=16)
+        axes_flat[cur_idx].set_title(VOICE_STRINGS[cur_voice], fontsize=12)
         axes_flat[cur_idx].set_xlabel("MIDI Pitch")
         
     plt.tight_layout()
