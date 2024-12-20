@@ -1,4 +1,4 @@
-from .dataset import SongDB
+from choralebricks.dataset import SongDB
 
 
 def tracks():
