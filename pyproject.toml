@@ -11,6 +11,7 @@ scipy = ">=1.4.0"
 soundfile = "*"
 pydantic = "*"
 pandas = "^2.2.3"
+lark = ">=1.2.0" # for parsing chord strings
 
 [tool.poetry.extras]
 examples = ["matplotlib"]

@@ -1,0 +1,22 @@
+start: chord*
+
+chord: note ":" shorthand ("(" degree_list ")")? ("/" bass)?
+     | note ":" "(" degree_list ")" ("/" bass)?
+     | note ("/" bass)?
+     | NA
+
+note: NATURAL | NATURAL MODIFIER+
+NATURAL: "A" | "B" | "C" | "D" | "E" | "F" | "G"
+MODIFIER: "b" | "#"
+NA: "N" | "X"
+
+bass: degree
+degree_list: degree ("," degree)*
+degree: MISSING? MODIFIER* INTERVAL
+shorthand: SHORTHAND
+
+MISSING: "*"
+INTERVAL: "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13"
+SHORTHAND: "maj" | "min" | "dim" | "aug" | "maj7" | "min7" | "dim7"| "hdim7" | "minmaj7"
+         | "maj6" | "min6" | "maj9" | "min9" | "sus4" | "sus2" | "7" | "9" | "11" | "13"
+%ignore " "
