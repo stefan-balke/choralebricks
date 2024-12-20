@@ -11,11 +11,12 @@ scipy = ">=1.4.0"
 soundfile = "*"
 pydantic = "*"
 pandas = "^2.2.3"
+matplotlib = {version = "*", optional = true}
 
 [tool.poetry.extras]
 examples = ["matplotlib"]
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "*"
 pytest-cov = "*"
 black = "*"
