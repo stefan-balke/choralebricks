@@ -12,11 +12,12 @@ soundfile = "*"
 pydantic = "*"
 pandas = "^2.2.3"
 lark = ">=1.2.0" # for parsing chord strings
+matplotlib = {version = "*", optional = true}
 
 [tool.poetry.extras]
 examples = ["matplotlib"]
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "*"
 pytest-cov = "*"
 black = "*"

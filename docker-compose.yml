@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    command:
+      [
+        "poetry",
+        "run",
+        "pytest",
+        "--cov=choralebricks",
+        "--cov-report=term-missing",
+      ]
