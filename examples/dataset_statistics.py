@@ -17,9 +17,7 @@ from choralebricks.generators import tracks
 logger = logging.getLogger(__name__)
 
 
-def main():
-    cbdb = SongDB()
-
+def collect_data(cbdb):
     df_songs = []
     df_tracks = []
 
@@ -53,9 +51,13 @@ def main():
         cur_song_info["min_dur"] = min(cur_track_durs)
         df_songs.append(cur_song_info)
 
-    df_tracks = pd.DataFrame(df_tracks)
     df_songs = pd.DataFrame(df_songs)
+    df_tracks = pd.DataFrame(df_tracks)
 
+    return df_songs, df_tracks 
+
+
+def print_tables(df_songs, df_tracks):
     print(u"\u2500" * 40)
     print(f"#Songs: {df_tracks["song_id"].nunique()}")
     print(f"#Tracks: {df_tracks.shape[0]}")
@@ -83,11 +85,13 @@ def main():
     print(u"\u2500" * 40)
     print("#Tracks per Instrument")
     print(u"\u2500" * 40)
-    print(df_tracks.groupby("instrument").agg(
+    df_songs_grouped = df_tracks.groupby("instrument").agg(
         size=("audio_dur", "size"),
         sum=("audio_dur", "sum"),
-        )
     )
+    df_songs_grouped["sum"] = pd.to_datetime(df_songs_grouped["sum"], unit='s').dt.strftime('%H:%M:%S')
+
+    print(df_songs_grouped)
 
     print(u"\u2500" * 40)
     print("#Tracks per Voice and Instrument")
@@ -108,11 +112,13 @@ def main():
     dataset_dur = pd.to_datetime(dataset_dur, unit='s').strftime('%H:%M:%S')
     print(f"Total Duration: {dataset_dur}")
 
+
+def tracks_per_voice_instrument(df_tracks):
+    # Figure: Tracks per Instrument and Voice
     grouped = df_tracks.groupby(["voice", "instrument"]).size()
     grouped = grouped.reset_index().sort_values(by=["voice", 0], ascending=True)
     grouped = grouped.set_index(["voice", "instrument"])
-    
-    # Tracks per Instrument and Voice
+
     fig, ax = plt.subplots(figsize=(10, 8))
 
     y_tick_labels = []
@@ -160,7 +166,9 @@ def main():
 
     plt.savefig('tracks_per_voice_instrument.pdf')
 
-    # Plot for Pitch Histograms for SATB
+
+def pitch_hist_SATB():
+    # Figure: Pitch Histograms for SATB
     notes = {
         Voices.SOPRANO: [],
         Voices.ALTO: [],
@@ -175,7 +183,7 @@ def main():
 
             notes[Voices(cur_track.voice)].extend(cur_notes["pitch"].tolist())
         except FileNotFoundError:
-            print(f"Skipping {cur_track}...")
+            print(f"Skipping notes from {cur_track.song_id}_{cur_track.voice}_{cur_track.instrument}. Reason: No annotations.")
 
     fig, axes = plt.subplots(4, 1, figsize=(4, 8),sharex=True, sharey=True)
     axes_flat = axes.ravel()
@@ -223,6 +231,15 @@ def main():
         
     plt.tight_layout()
     plt.savefig('pitch_hist_SATB.pdf')
+
+
+def main():
+    cbdb = SongDB()
+    df_songs, df_tracks = collect_data(cbdb)
+
+    print_tables(df_songs=df_songs, df_tracks=df_tracks)  
+    tracks_per_voice_instrument(df_tracks)
+    pitch_hist_SATB()
 
     plt.show()
 
