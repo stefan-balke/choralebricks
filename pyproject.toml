@@ -5,17 +5,18 @@ description = "Supporting package for the ChoraleBricks dataset."
 authors = ["Stefan Balke <stefan.balke@audiolabs-erlangen.de>"]
 
 [tool.poetry.dependencies]
-python = ">=3.10"  # Specify the compatible Python version
+python = ">=3.10"
 numpy = ">=1.18.0"
 scipy = ">=1.4.0"
 soundfile = "*"
 pydantic = "*"
 pandas = "^2.2.3"
 lark = ">=1.2.0" # for parsing chord strings
-matplotlib = {version = "*", optional = true}
+matplotlib = ">=3.0.0"
+seaborn = {version = "*", optional = true}
 
 [tool.poetry.extras]
-examples = ["matplotlib"]
+examples = ["seaborn"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
