@@ -14,9 +14,12 @@ pandas = "^2.2.3"
 lark = ">=1.2.0" # for parsing chord strings
 matplotlib = ">=3.0.0"
 seaborn = {version = "*", optional = true}
+numba = {version = "*", optional = true}
+librosa = {version = "0.10.2", optional = true}
+
 
 [tool.poetry.extras]
-examples = ["seaborn"]
+examples = ["numba", "seaborn", "librosa"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
