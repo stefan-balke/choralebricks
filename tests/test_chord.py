@@ -7,6 +7,7 @@ import numpy as np
 from choralebricks import Chord
 
 def test_chords():
+    # test the chord parser
     midi = np.arange(62, 74, 1)
 
     c = Chord("D:maj")

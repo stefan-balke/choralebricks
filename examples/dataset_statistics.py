@@ -202,7 +202,7 @@ def pitch_hist_SATB():
             ax=axes_flat[cur_idx]
         )
 
-        # only for the count
+        # add for the count
         ax_count = axes_flat[cur_idx].twinx()
         sns.histplot(
             cur_df['midi_pitch'],
@@ -222,11 +222,20 @@ def pitch_hist_SATB():
             ax=axes_flat[cur_idx]
         )
         
+        x_min = cur_df['midi_pitch'].min()
+        x_max = cur_df['midi_pitch'].max()
+
         sns.despine(right=False)
         axes_flat[cur_idx].set_xlim((20, 90))
         ax_count.set_ylim((0, 2375))
         ax_count.set_ylabel("#Note Events")
-        axes_flat[cur_idx].set_title(VOICE_STRINGS[cur_voice], fontsize=12)
+        axes_flat[cur_idx].set_title((
+                f"{VOICE_STRINGS[cur_voice]}: "
+                f"[{cur_df['midi_pitch'].min():.0f}:{cur_df['midi_pitch'].max():.0f}], "
+                f"\u00D8={cur_df['midi_pitch'].mean():.2f}"
+                # f"mode={cur_df['midi_pitch'].mode().values[0]:.0f}"
+            ),
+            fontsize=12)
         axes_flat[cur_idx].set_xlabel("MIDI Pitch")
         
     plt.tight_layout()
