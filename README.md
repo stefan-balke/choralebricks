@@ -66,7 +66,7 @@ Each chorale consists of 4 voices sometimes referred to sopran, alt, tenor, and 
 
 ## How to contribute
 
-_ChoraleDB_ is a community focused project, we therefore encourage the community to submit bug-fixes and requests for technical support through [github issues](https://github.com/stefan-balke/choralebricks/issues/new).
+_ChoraleDB_ is a community focused project, we therefore encourage the community to submit bug-fixes and requests for technical support through [GitHub issues](https://github.com/stefan-balke/choralebricks/issues/new).
 
 ## License
 
