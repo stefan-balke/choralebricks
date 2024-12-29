@@ -6,8 +6,7 @@ import pytest
 import soundfile as sf
 
 from choralebricks.dataset import EnsemblePermutations, SongDB
-from choralebricks.utils import read_f0, read_notes
-from choralebricks.utils import read_f0
+from choralebricks.utils import read_f0, read_notes, read_chords
 
 
 # Check for the environment variable CHORALEDB_PATH
@@ -21,7 +20,9 @@ else:
     TRACKS = []
     tr_ids = []
 
-
+"""
+    Test Fixtures
+"""
 @pytest.fixture(name="choralebricks")
 def songdb():
     """ChoraleBricks Dataset"""
@@ -47,6 +48,9 @@ def ensembles(choralebricks):
     return [ens for song in choralebricks.songs for ens in EnsemblePermutations(song)]
 
 
+"""
+    Data Integration Tests
+"""
 def test_number_of_songs(songs):
     """Test number of songs"""
     assert len(songs) == 10
@@ -104,8 +108,8 @@ def test_csv_headers(track):
     """Test CSV file headers"""
     f0_head = read_f0(track.path_f0, rename_cols=False).columns if track.path_f0 else []
     notes_head = read_notes(track.path_notes, rename_cols=False).columns if track.path_notes else []
-    assert list(f0_head) == ['TIME', 'VALUE', 'LABEL']
-    assert list(notes_head) == ['TIME', 'VALUE', 'DURATION', 'LEVEL', 'LABEL']
+    assert list(f0_head) == ["TIME", "VALUE", "LABEL"]
+    assert list(notes_head) == ["TIME", "VALUE", "DURATION", "LEVEL", "LABEL"]
 
 
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
@@ -134,8 +138,16 @@ def test_track_len_per_song(songs):
                 track_lengths.append(len(data))
         assert len(set(track_lengths)) <= 1, f"Not all audio files of {song.id} have the same length."
 
+
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
 def test_f0_trajectory(track):
     """All F0-trajectories should have only one entry per time instance"""
     df = read_f0(track.path_f0)
     assert df.shape[0] == df.drop_duplicates("t").shape[0]
+
+
+@pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
+def test_chord_csv(track):
+    """Test chord CSV."""
+    csv_header = read_chords(track.path_chords).columns if track.path_chords else []
+    assert list(csv_header) == ["start_meas", "end_meas", "chord"]

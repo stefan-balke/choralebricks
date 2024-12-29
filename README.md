@@ -56,7 +56,12 @@ Each chorale consists of 4 voices sometimes referred to sopran, alt, tenor, and 
 ## Cite
 
 ```latex
-@article(TODO)
+@article{BalkeBM24_ChoraleBricks,
+  author  = {Stefan Balke and Axel Berndt and Meinard M{\"u}ller},
+  title   = {{ChoraleBricks}: A Modular Multi-track Dataset for Wind Music Research},
+  journal = {Submitted},
+  year    = {2025}
+}
 ```
 
 ## How to contribute
