@@ -160,3 +160,14 @@ def get_voice_from_int(value):
         return Voices(value)
     except ValueError:
         return None
+
+
+def midi2hz(p, f_ref=440):
+    """ Returns center frequency in Hz for a given (optionally fractional) MIDI pitch
+    """
+    return f_ref * np.power(2, (p - 69) / 12)
+
+def hz2midi(f, f_ref=440):
+    """ Returns (optionally fractional) MIDI pitch for a given frequency in Hz
+    """
+    return np.log2(f/f_ref) * 12 + 69
