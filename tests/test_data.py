@@ -1,12 +1,14 @@
 import os
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 import soundfile as sf
 
 from choralebricks.dataset import EnsemblePermutations, SongDB
 from choralebricks.utils import read_f0, read_notes, read_chords
+from choralebricks import ChordSequence
 
 
 # Check for the environment variable CHORALEDB_PATH
@@ -151,3 +153,16 @@ def test_chord_csv(track):
     """Test chord CSV."""
     csv_header = read_chords(track.path_chords).columns if track.path_chords else []
     assert list(csv_header) == ["start_meas", "end_meas", "chord"]
+
+@pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
+def test_chord_annotations_sequence(track):
+    """Test if CSV chord annotations can be parsed into a ChordSequence"""
+
+    # all tracks link to the same chord annotations, so we only take one
+    cs = ChordSequence.from_csv(track.path_chords)
+    # all songs should have a chord in the second measure
+    assert cs.get_chord_at(2.25).root is not None, f"Chord for song {song.id} not parsed correctly."
+    for i in range(len(cs.bounds)-1):
+        if cs.bounds[i,1] > cs.bounds[i+1,0]:
+            print(song.id, i, cs.bounds[i,1], cs.bounds[i+1,0])
+    assert np.all(cs.bounds[:-1,1] <= cs.bounds[1:,0]), f"Overlapping chord annotations for song {song.id}."
