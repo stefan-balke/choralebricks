@@ -35,7 +35,7 @@ Further example scripts for different standard scenarios can be found in the `ex
 As a starting point, we provide example code in the `examples/` folder.
 These require slightly more dependencies. Use:
 ```
-    poetry install --with examples
+    poetry install --extras examples
 ```
 for setup.
 
