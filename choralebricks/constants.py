@@ -13,6 +13,7 @@ class Voices(Enum):
 class Instrument(Enum):
     FLUTE = "fl"
     OBOE = "ob"
+    ENGLISH_HORN = "eh"
     CLARINET = "cl"
     CLARINET_BASS = "bcl"
     SAX_ALTO = "as"
@@ -44,6 +45,7 @@ INSTRUMENTS_BRASS = [
 INSTRUMENTS_WOODWIND = [
     Instrument.FLUTE,
     Instrument.OBOE,
+    Instrument.ENGLISH_HORN,
     Instrument.CLARINET,
     Instrument.CLARINET_BASS,
     Instrument.SAX_ALTO,
