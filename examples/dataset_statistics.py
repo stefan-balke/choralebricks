@@ -113,7 +113,7 @@ def print_tables(df_songs, df_tracks):
     print(f"Total Duration: {dataset_dur}")
 
 
-def tracks_per_voice_instrument(df_tracks):
+def figure_tracks_per_voice_instrument(df_tracks):
     # Figure: Tracks per Instrument and Voice
     grouped = df_tracks.groupby(["voice", "instrument"]).size()
     grouped = grouped.reset_index().sort_values(by=["voice", 0], ascending=True)
@@ -167,7 +167,7 @@ def tracks_per_voice_instrument(df_tracks):
     plt.savefig('tracks_per_voice_instrument.pdf')
 
 
-def pitch_hist_SATB():
+def figure_pitch_hist_SATB():
     # Figure: Pitch Histograms for SATB
     notes = {
         Voices.SOPRANO: [],
@@ -185,7 +185,7 @@ def pitch_hist_SATB():
         except FileNotFoundError:
             print(f"Skipping notes from {cur_track.song_id}_{cur_track.voice}_{cur_track.instrument}. Reason: No annotations.")
 
-    fig, axes = plt.subplots(4, 1, figsize=(4, 8),sharex=True, sharey=True)
+    fig, axes = plt.subplots(2, 2, figsize=(10, 6),sharex=True, sharey=True)
     axes_flat = axes.ravel()
 
     for cur_idx, cur_voice in enumerate(Voices):
@@ -222,9 +222,6 @@ def pitch_hist_SATB():
             ax=axes_flat[cur_idx]
         )
         
-        x_min = cur_df['midi_pitch'].min()
-        x_max = cur_df['midi_pitch'].max()
-
         sns.despine(right=False)
         axes_flat[cur_idx].set_xlim((20, 90))
         ax_count.set_ylim((0, 2375))
@@ -247,8 +244,8 @@ def main():
     df_songs, df_tracks = collect_data(cbdb)
 
     print_tables(df_songs=df_songs, df_tracks=df_tracks)  
-    tracks_per_voice_instrument(df_tracks)
-    pitch_hist_SATB()
+    figure_tracks_per_voice_instrument(df_tracks)
+    figure_pitch_hist_SATB()
 
     plt.show()
 
