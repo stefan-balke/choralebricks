@@ -5,12 +5,18 @@ import matplotlib.pyplot as plt
 NUM_VOICES = 4
 
 class Voices(Enum):
+    """
+    Available voices (SATB).
+    """
     SOPRANO = 1
     ALTO = 2
     TENOR = 3
     BASS = 4
 
 class Instrument(Enum):
+    """
+    Insturments and their abbreviations.
+    """
     FLUTE = "fl"
     OBOE = "ob"
     ENGLISH_HORN = "eh"
@@ -28,11 +34,15 @@ class Instrument(Enum):
 
 
 class InstrumentType(Enum):
+    """
+    Instrument families.
+    """
     BRASS = "brass"
     WOODWIND = "woodwind"
 
 
 INSTRUMENTS_BRASS = [
+    # List of brass instruments.
     Instrument.TRUMPET,
     Instrument.FLUEGELHORN,
     Instrument.BARITONE,
@@ -43,6 +53,7 @@ INSTRUMENTS_BRASS = [
 
 
 INSTRUMENTS_WOODWIND = [
+    # List of woodwind instruments.
     Instrument.FLUTE,
     Instrument.OBOE,
     Instrument.ENGLISH_HORN,
@@ -54,6 +65,7 @@ INSTRUMENTS_WOODWIND = [
 ]
 
 VOICE_COLORS = {
+    # Mapping from Voices to plot colors.
     Voices.SOPRANO: plt.cm.tab10(3),
     Voices.ALTO: plt.cm.tab10(2),
     Voices.TENOR: plt.cm.tab10(1),
@@ -61,6 +73,7 @@ VOICE_COLORS = {
 }
 
 VOICE_STRINGS = {
+    # Dictionary from `Voice` to `str`.
     Voices.SOPRANO: "S",
     Voices.ALTO: "A",
     Voices.TENOR: "T",
@@ -68,6 +81,7 @@ VOICE_STRINGS = {
 }
 
 VOICE_STRINGS_SHORT = {
+    # Dictionary from `str` to `Voice`.
     "S": Voices.SOPRANO,
     "A": Voices.ALTO,
     "T": Voices.TENOR,

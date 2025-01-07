@@ -119,3 +119,6 @@ MANIFEST
 
 *.wav
 scripts/alignments
+
+docs/build
+docs/source/generated

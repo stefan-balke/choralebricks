@@ -16,10 +16,11 @@ matplotlib = ">=3.0.0"
 seaborn = {version = "*", optional = true}
 numba = {version = "*", optional = true}
 librosa = {version = "0.10.2", optional = true}
-
+sphinx = {version = "*", optional = true}
 
 [tool.poetry.extras]
 examples = ["numba", "seaborn", "librosa"]
+docs = ["sphinx"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
