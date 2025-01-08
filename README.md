@@ -2,13 +2,27 @@
 
 [![Python package](https://github.com/stefan-balke/choralebricks/actions/workflows/python-package.yml/badge.svg)](https://github.com/stefan-balke/choralebricks/actions/workflows/python-package.yml)
 
-WIP
+If you use ChoraleBricks in your academic work, please cite this article:
 
-## Installation and Setup
+:blue_book: Stefan Balke, Axel Berndt, and Meinard Müller  
+[**ChoraleBricks: A Modular Multitrack Dataset for Wind Music Research**](#)
+Submitted for review, 2025.
+
+
+```bibtex
+@article{BalkeBM24_ChoraleBricks,
+  author  = {Stefan Balke and Axel Berndt and Meinard M{\"u}ller},
+  title   = {{ChoraleBricks}: A Modular Multitrack Dataset for Wind Music Research},
+  journal = {Submitted},
+  year    = {2025}
+}
+```
+
+## :computer Installation and Setup
 
 Clone repository, then:
 
-```
+```bash
     pip install poetry
     poetry install
 ```
@@ -34,7 +48,7 @@ Further example scripts for different standard scenarios can be found in the `ex
 
 As a starting point, we provide example code in the `examples/` folder.
 These require slightly more dependencies. Use:
-```
+```bash
     poetry install --extras examples
 ```
 for setup.
@@ -53,21 +67,15 @@ A single track in a multi-track recording.
 
 Each chorale consists of 4 voices sometimes referred to sopran, alt, tenor, and bass (SATB).
 
-## Cite
-
-```latex
-@article{BalkeBM24_ChoraleBricks,
-  author  = {Stefan Balke and Axel Berndt and Meinard M{\"u}ller},
-  title   = {{ChoraleBricks}: A Modular Multitrack Dataset for Wind Music Research},
-  journal = {Submitted},
-  year    = {2025}
-}
-```
-
 ## How to contribute
 
 _ChoraleDB_ is a community focused project, we therefore encourage the community to submit bug-fixes and requests for technical support through [GitHub issues](https://github.com/stefan-balke/choralebricks/issues/new).
 
 ## License
 
-MIT
+This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
+
+## Acknowledgements
+
+This work was funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under grant number 500643750 (MU 2686/15-1).
+The [International Audio Laboratories Erlangen](https://audiolabs-erlangen.de) are a joint institution of the [Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU)](https://www.fau.eu) and [Fraunhofer Institute for Integrated Circuits IIS](https://www.iis.fraunhofer.de/en.html).
