@@ -18,7 +18,7 @@ Submitted for review, 2025.
 }
 ```
 
-## :computer Installation and Setup
+## :computer: Installation and Setup
 
 Clone repository, then:
 
