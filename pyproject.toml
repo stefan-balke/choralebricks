@@ -3,6 +3,16 @@ name = "choralebricks"
 version = "0.1.0"
 description = "Supporting package for the ChoraleBricks dataset."
 authors = ["Stefan Balke <stefan.balke@audiolabs-erlangen.de>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://www.audiolabs-erlangen.de/resources/MIR/2025-ChoraleBricks"
+repository = "https://github.com/stefan-balke/choralebricks"
+keywords = ["mir", "dataset", "instruments"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.10"
