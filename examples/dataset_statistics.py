@@ -67,6 +67,7 @@ def print_tables(df_songs, df_tracks):
     print("#Tracks per Song")
     print(u"\u2500" * 40)
     print(df_tracks.groupby("song_id").size())
+    print(f"Avg. Tracks per Song: {df_tracks.groupby("song_id").size().mean()}")
 
     print(u"\u2500" * 40)
     print("#Tracks per Voice")
@@ -90,6 +91,7 @@ def print_tables(df_songs, df_tracks):
         sum=("audio_dur", "sum"),
     )
     df_songs_grouped["sum"] = pd.to_datetime(df_songs_grouped["sum"], unit='s').dt.strftime('%H:%M:%S')
+    print(f"Avg. Tracks per Instrument: {df_songs_grouped["size"].mean()}")
 
     print(df_songs_grouped)
 
@@ -111,6 +113,8 @@ def print_tables(df_songs, df_tracks):
     print(df_songs.sort_values("song_id"))
     dataset_dur = pd.to_datetime(dataset_dur, unit='s').strftime('%H:%M:%S')
     print(f"Total Duration: {dataset_dur}")
+    print(f"#Ensembles: {df_songs["n_permutations"].sum()}")
+    print(f"Avg. Ensembles: {df_songs["n_permutations"].mean()}")
 
 
 def figure_tracks_per_voice_instrument(df_tracks):

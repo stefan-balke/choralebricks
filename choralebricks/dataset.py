@@ -108,7 +108,7 @@ class Song:
             raise TypeError("Key must be a string (track_id) or an integer (index).")
 
     def __collect_tracks(self, suffix="wav"):
-        tracks_dir = self.song_dir / "tracks"
+        tracks_dir = self.song_dir / "tracks_normalized"
 
         # get all the audio files
         path_tracks = [f for f in tracks_dir.glob(f"*.{suffix}") if f.is_file()]

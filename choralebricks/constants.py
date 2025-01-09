@@ -26,11 +26,30 @@ class Instrument(Enum):
     SAX_TENOR = "ts"
     SAX_BARITONE = "bs"
     TRUMPET = "tp"
-    FLUEGELHORN = "fh"
+    FLUGELHORN = "fh"
     BARITONE = "bar"
     FRENCHHORN = "fho"
     TROMBONE = "tb"
     TUBA = "tba"
+
+
+INSTRUMENT_STRINGS = {
+    # Dictionary from `Instrument` to `str`.
+    Instrument.TRUMPET: "Trumpet",
+    Instrument.FLUGELHORN: "Flugelhorn",
+    Instrument.BARITONE: "Baritone",
+    Instrument.FRENCHHORN: "French horn",
+    Instrument.TROMBONE: "Trombone",
+    Instrument.TUBA: "Tuba",
+    Instrument.FLUTE: "Flute",
+    Instrument.OBOE: "Oboe",
+    Instrument.ENGLISH_HORN: "English horn",
+    Instrument.CLARINET: "Clarinet",
+    Instrument.CLARINET_BASS: "Bass Clarinet",
+    Instrument.SAX_ALTO: "Alto Saxophone",
+    Instrument.SAX_TENOR: "Tenor Saxophone",
+    Instrument.SAX_BARITONE: "Baritone Saxophone"
+}
 
 
 class InstrumentType(Enum):
@@ -44,7 +63,7 @@ class InstrumentType(Enum):
 INSTRUMENTS_BRASS = [
     # List of brass instruments.
     Instrument.TRUMPET,
-    Instrument.FLUEGELHORN,
+    Instrument.FLUGELHORN,
     Instrument.BARITONE,
     Instrument.FRENCHHORN,
     Instrument.TROMBONE,
