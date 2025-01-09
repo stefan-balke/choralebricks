@@ -10,7 +10,7 @@ import numpy as np
 import soundfile as sf
 from pydantic import BaseModel, model_validator
 
-from choralebricks.constants import (INSTRUMENTS_BRASS, INSTRUMENTS_WOODWIND, Instrument, InstrumentType)
+from .constants import (INSTRUMENTS_BRASS, INSTRUMENTS_WOODWIND, Instrument, InstrumentType)
 
 logger = logging.getLogger(__name__)
 
