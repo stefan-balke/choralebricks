@@ -60,7 +60,7 @@ def test_number_of_songs(songs):
 
 def test_number_of_ensembles(ensembles):
     """Test number of ensembles"""
-    assert len(ensembles) == 417
+    assert len(ensembles) == 2582
 
 
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
@@ -142,10 +142,18 @@ def test_track_len_per_song(songs):
 
 
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
-def test_f0_trajectory(track):
+def test_f0_trajectory_uniqueness(track):
     """All F0-trajectories should have only one entry per time instance"""
     df = read_f0(track.path_f0)
     assert df.shape[0] == df.drop_duplicates("t").shape[0]
+
+
+@pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
+def test_dur_f0_audio(track):
+    """Audio and F0-annotations should have similar length (+-1 seconds)"""
+    dur_audio = track.min_samples / track.sample_rate
+    dur_f0 = read_f0(track.path_f0).tail(1)["t"].values[0]
+    assert np.abs(dur_audio - dur_f0) < 1.0
 
 
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
@@ -153,6 +161,7 @@ def test_chord_csv(track):
     """Test chord CSV."""
     csv_header = read_chords(track.path_chords).columns if track.path_chords else []
     assert list(csv_header) == ["start_meas", "end_meas", "chord"]
+
 
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
 def test_chord_annotations_sequence(track):
