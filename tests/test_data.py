@@ -161,8 +161,8 @@ def test_chord_annotations_sequence(track):
     # all tracks link to the same chord annotations, so we only take one
     cs = ChordSequence.from_csv(track.path_chords)
     # all songs should have a chord in the second measure
-    assert cs.get_chord_at(2.25).root is not None, f"Chord for song {song.id} not parsed correctly."
+    assert cs.get_chord_at(2.25).root is not None, f"Chord for song {track.song_id} not parsed correctly."
     for i in range(len(cs.bounds)-1):
         if cs.bounds[i,1] > cs.bounds[i+1,0]:
-            print(song.id, i, cs.bounds[i,1], cs.bounds[i+1,0])
-    assert np.all(cs.bounds[:-1,1] <= cs.bounds[1:,0]), f"Overlapping chord annotations for song {song.id}."
+            print(track.song_id, i, cs.bounds[i,1], cs.bounds[i+1,0])
+    assert np.all(cs.bounds[:-1,1] <= cs.bounds[1:,0]), f"Overlapping chord annotations for song {track.song_id}."
