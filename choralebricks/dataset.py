@@ -10,7 +10,8 @@ import numpy as np
 import soundfile as sf
 from pydantic import BaseModel, model_validator
 
-from .constants import (INSTRUMENTS_BRASS, INSTRUMENTS_WOODWIND, Instrument, InstrumentType)
+from .constants import (INSTRUMENTS_BRASS, INSTRUMENTS_WOODWIND, Instrument,
+                        InstrumentType)
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +97,7 @@ class Song:
                 raise KeyError(f"Track key '{key}' is not in the correct format e.g. '01_tp'.") from exc
 
             for track in self.tracks:
-                if int(track.voice) == int(voice):
+                if int(track.voice) == int(voice) and track.instrument.value == inst:
                     return track
             raise KeyError(f"Track with id '{key}' not found.")
         elif isinstance(key, int):
