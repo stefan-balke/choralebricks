@@ -39,7 +39,7 @@ cbdb = SongDB(root_dir="/path/to/ChoraleBricks")
 
 where `root_dir` is the path to the ChoraleDB dataset folder.
 The `root_dir` can also be overridden using a system environment variable.
-Just ```export CHORALEDBPATH=/path/to/ChoraleBricks``` inside your bash environment.
+Just ```export CHORALEDB_PATH=/path/to/ChoraleBricks``` inside your bash environment.
 In that case no arguments would need to passed to `SongDB()`.
 
 Further example scripts for different standard scenarios can be found in the `examples/` folder.
