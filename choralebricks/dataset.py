@@ -317,13 +317,27 @@ class Mixer(ABC):
     def get_mix(self):
         pass
 
-    # def load_audio():
-    #     audio, sr = sf.read()
-
 
 class MixerSimple(Mixer):
-    def __init__(self, tracks: list[Track]):
+    """
+    Simple track mixer.
+
+    Attributes:
+        tracks (list[Track]): List of associated multi-tracks.
+        gains (Optional[list[float]]): Gain levels (in dB) per track (defaults to 0 dB if not provided).
+    """
+    def __init__(self,
+                 tracks: list[Track],
+                 gains: Optional[list[float]] = None):
         self.tracks = tracks
+
+        if gains is None:
+            self.gains = len(self.tracks) * [0.0]
+        else:
+            self.gains = gains
+
+        self.gains = np.asarray(self.gains)
+
 
     def get_mix(self):
         """Mix tracks together by sum(tracks)/num_tracks"""
@@ -343,10 +357,13 @@ class MixerSimple(Mixer):
         # TODO: tracks could differ in samples, we assume that the start position is correct
         # quick fix: Take shortest number of samples from all tracks
         track_audio = np.asarray(track_audio)
+        track_audio = (10 ** (self.gains / 20))[:, np.newaxis] * track_audio
         track_audio = track_audio / track_audio.shape[0]  # all equal amplitude from original file
 
-        # TODO: Add clipping protection?
-
         self.mix = np.sum(track_audio, axis=0)
+
+        # Check for clipping
+        if (self.mix.min() < -1.0) or (self.mix.max() > 1.0):
+            logger.warning("Clipping detected in output mix. Please check the gains.")
 
         return {"MIX": self.mix, "TRACKS": track_audio, "SAMPLERATE": track_samplerates[0]}

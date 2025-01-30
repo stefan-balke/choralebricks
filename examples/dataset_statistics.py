@@ -1,3 +1,7 @@
+"""
+    Overview statistics for ChoraleBricks.
+    Used for the tables and figures in the corresponding dataset publication.
+"""
 import logging
 from pathlib import Path
 import pandas as pd
