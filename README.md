@@ -1,12 +1,13 @@
 <h1 align="center">
-<img src="https://raw.githubusercontent.com/stefan-balke/choralebricks/main/docs/img/logo_cb.png" width="300">
+<img src="https://raw.githubusercontent.com/stefan-balke/choralebricks/refs/heads/main/docs/img/logo_cb.png" width="300">
 </h1><br>
 
-[![Python package](https://github.com/stefan-balke/choralebricks/actions/workflows/python-package.yml/badge.svg)](https://github.com/stefan-balke/choralebricks/actions/workflows/python-package.yml)
+[![CI](https://github.com/stefan-balke/choralebricks/actions/workflows/python-package.yml/badge.svg)](https://github.com/stefan-balke/choralebricks/actions/workflows/python-package.yml)
 
 With this toolbox, we provide an easy way of accessing and interacting with the ChoraleBricks dataset.
 
-For an overview of the dataset, please visit our demo website: [https://audiolabs-erlangen.de/resources/MIR/2025-ChoraleBricks](https://audiolabs-erlangen.de/resources/MIR/2025-ChoraleBricks)
+For an overview of the dataset, please visit our demo website:<br />
+[https://audiolabs-erlangen.de/resources/MIR/2025-ChoraleBricks](https://audiolabs-erlangen.de/resources/MIR/2025-ChoraleBricks)
 
 If you use ChoraleBricks in your academic work, please cite this article:
 
