@@ -1,12 +1,18 @@
-# ChoraleBricks
+<h1 align="center">
+<img src="https://raw.githubusercontent.com/stefan-balke/choralebricks/main/docs/img/logo_cb.png" width="300">
+</h1><br>
 
 [![Python package](https://github.com/stefan-balke/choralebricks/actions/workflows/python-package.yml/badge.svg)](https://github.com/stefan-balke/choralebricks/actions/workflows/python-package.yml)
 
+With this toolbox, we provide an easy way of accessing and interacting with the ChoraleBricks dataset.
+
+For an overview of the dataset, please visit our demo website: [https://audiolabs-erlangen.de/resources/MIR/2025-ChoraleBricks](https://audiolabs-erlangen.de/resources/MIR/2025-ChoraleBricks)
+
 If you use ChoraleBricks in your academic work, please cite this article:
 
-:blue_book: Stefan Balke, Axel Berndt, and Meinard Müller  
+:blue_book: Stefan Balke, Axel Berndt, and Meinard Müller
 [**ChoraleBricks: A Modular Multitrack Dataset for Wind Music Research**](#)
-Submitted for review, 2025.
+Submitted, 2025.
 
 
 ```bibtex
@@ -27,11 +33,11 @@ Clone repository, then:
     poetry install
 ```
 
-Dowload the corresponding audio files from Zenodo: TODO.
+Dowload the corresponding audio files from Zenodo: *Link follows when published*.
 
 ## Usage
 
-To use the full dataset, set a dataset `root_dir` directory 
+To use the full dataset, set a dataset `root_dir` directory
 
 ```python
 cbdb = SongDB(root_dir="/path/to/ChoraleBricks")
@@ -67,6 +73,10 @@ A single track in a multi-track recording.
 
 Each chorale consists of 4 voices sometimes referred to sopran, alt, tenor, and bass (SATB).
 
+**ensemble**
+
+An ensemble is in the context of ChoraleBricks a set of four tracks (S, A, T, B).
+
 ## How to contribute
 
 _ChoraleDB_ is a community focused project, we therefore encourage the community to submit bug-fixes and requests for technical support through [GitHub issues](https://github.com/stefan-balke/choralebricks/issues/new).
@@ -77,5 +87,5 @@ This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE
 
 ## Acknowledgements
 
-This work was funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under grant number 500643750 (MU 2686/15-1).
+This work was funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under grant number 500643750 (MU 2686/15-1) and under Grant No. 555525568 (MU 2686/18-1).
 The [International Audio Laboratories Erlangen](https://audiolabs-erlangen.de) are a joint institution of the [Friedrich-Alexander-Universität Erlangen-Nürnberg (FAU)](https://www.fau.eu) and [Fraunhofer Institute for Integrated Circuits IIS](https://www.iis.fraunhofer.de/en.html).
