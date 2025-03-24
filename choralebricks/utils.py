@@ -24,7 +24,7 @@ def validate_schema(
         )
 
 
-def read_f0(
+def read_f0_sv(
     path_csv: Path,
     rename_cols: bool=True
 ) -> pd.DataFrame:
@@ -49,6 +49,26 @@ def read_f0(
             "TIME": "t",
             "VALUE": "f0"
         })
+    return df
+
+
+def read_f0(
+    path_csv: Path,
+) -> pd.DataFrame:
+    expected_columns = ["t", "f0"]
+
+    if path_csv == None:
+        raise FileNotFoundError(f"File not found: {path_csv}")
+
+    if path_csv.exists():
+        df = pd.read_csv(path_csv, sep=",")
+        try:
+            validate_schema(df, expected_columns)
+        except SchemaValidationError as e:
+            print(f"Error: {e}")
+    else:
+        raise FileNotFoundError(f"File not found: {path_csv}")
+
     return df
 
 

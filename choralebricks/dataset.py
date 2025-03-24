@@ -121,7 +121,7 @@ class Song:
             # extract voice and instrument from file name
             voice, instrument = cur_path_tracks.stem.split("_")
 
-            cur_path_f0 = self.song_dir / "annotations" / f"{cur_path_tracks.stem}_f0.csv"
+            cur_path_f0 = self.song_dir / "annotations" / f"{cur_path_tracks.stem}_f0_filled.csv"
             cur_path_notes = self.song_dir / "annotations" / f"{cur_path_tracks.stem}_notes.csv"
             cur_path_sheet_music_csv = self.song_dir / f"{self.id}.csv"
             cur_path_sheet_music_midi = self.song_dir / f"{self.id}.mid"
