@@ -12,12 +12,12 @@ from choralebricks.dataset import EnsemblePermutations, Song, Track
 @pytest.fixture
 def mockupdb():
     """Mockup database with a single song."""
-  
+
     def mocktrack(
         voice: int,
         instrument: Instrument
     ):
-        
+
         track = Track(
             song_id="test_song_01",
             path_audio=f"{instrument.value}_{voice}.wav",
@@ -27,9 +27,9 @@ def mockupdb():
             voice=voice,
             instrument=instrument
         )
-        
+
         return track
- 
+
     song01_tracks = [
         mocktrack(1, Instrument.TRUMPET),
         mocktrack(1, Instrument.CLARINET),
@@ -64,7 +64,7 @@ def test_number_of_ensembles(ensembles):
 
 def test_instrument_type(mockupdb):
     """Test number of songs"""
-    
+
     for cur_song in mockupdb:
         for cur_track in cur_song.tracks:
             assert cur_track.instrument_type != None
