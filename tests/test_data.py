@@ -17,7 +17,6 @@ choraledb_path = os.getenv('CHORALEDB_PATH')
 if choraledb_path:
     TRACKS = [track for song in SongDB().songs for track in song.tracks]
     tr_ids = [f"{track.song_id}-{track.path_audio.stem}" for track in TRACKS]
-    # TODO: There could be a track.stem (str or property of voice and instrument).
 else:
     TRACKS = []
     tr_ids = []
@@ -60,7 +59,7 @@ def test_number_of_songs(songs):
 
 def test_number_of_ensembles(ensembles):
     """Test number of ensembles"""
-    assert len(ensembles) == 2582
+    assert len(ensembles) == 4582
 
 
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
@@ -154,6 +153,15 @@ def test_dur_f0_audio(track):
     dur_audio = track.min_samples / track.sample_rate
     dur_f0 = read_f0(track.path_f0).tail(1)["t"].values[0]
     assert np.abs(dur_audio - dur_f0) < 1.0
+
+
+@pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
+def test_dur_note_audio(track):
+    """Audio and note annotations should have similar length (+-1 seconds)"""
+    dur_audio = track.min_samples / track.sample_rate
+    last_note = read_notes(track.path_notes).tail(1)
+    dur_notes = (last_note["t_start"] + last_note["t_dur"]).values[0]
+    assert np.abs(dur_audio - dur_notes) < 1.0
 
 
 @pytest.mark.parametrize("track", TRACKS, ids=tr_ids)
