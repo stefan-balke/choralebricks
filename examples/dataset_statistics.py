@@ -4,6 +4,7 @@
 """
 import logging
 from pathlib import Path
+import os
 import pandas as pd
 import numpy as np
 import soundfile as sf
@@ -58,10 +59,17 @@ def collect_data(cbdb):
     df_songs = pd.DataFrame(df_songs)
     df_tracks = pd.DataFrame(df_tracks)
 
-    return df_songs, df_tracks 
+    return df_songs, df_tracks
 
 
-def print_tables(df_songs, df_tracks):
+def print_tables(df_songs, df_tracks, df_performers):
+    print(u"\u2500" * 40)
+    print(f"#Performers: {df_performers.shape[0]}")
+    print(f"Min. Age: {(2025 - df_performers["birthyear"]).min()}")
+    print(f"Max. Age: {(2025 - df_performers["birthyear"]).max()}")
+    print(f"Avg. Age: {(2025 - df_performers["birthyear"]).mean()}")
+    print(u"\u2500" * 40)
+
     print(u"\u2500" * 40)
     print(f"#Songs: {df_tracks["song_id"].nunique()}")
     print(f"#Tracks: {df_tracks.shape[0]}")
@@ -97,6 +105,13 @@ def print_tables(df_songs, df_tracks):
     df_songs_grouped["sum"] = pd.to_datetime(df_songs_grouped["sum"], unit='s').dt.strftime('%H:%M:%S')
     print(f"Avg. Tracks per Instrument: {df_songs_grouped["size"].mean()}")
 
+    audio_dur = df_tracks["audio_dur"].sum()
+    total_seconds = int(audio_dur)
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    print(f"Total Audio Duration: {hours}h {minutes}m {seconds}s")
+
+
     print(df_songs_grouped)
 
     print(u"\u2500" * 40)
@@ -112,11 +127,15 @@ def print_tables(df_songs, df_tracks):
     print("#Ensembles per Song")
     print(u"\u2500" * 40)
     df_songs["perm_dur"] = df_songs["n_permutations"] * df_songs["min_dur"]
-    dataset_dur = df_songs["perm_dur"].sum()
-    df_songs["perm_dur"] = pd.to_datetime(df_songs["perm_dur"], unit='s').dt.strftime('%H:%M:%S')
+    df_songs["perm_dur_str"] = pd.to_datetime(df_songs["perm_dur"], unit='s').dt.strftime('%H:%M:%S')
     print(df_songs.sort_values("song_id"))
-    dataset_dur = pd.to_datetime(dataset_dur, unit='s').strftime('%H:%M:%S')
-    print(f"Total Duration: {dataset_dur}")
+
+    perm_dur = df_songs["perm_dur"].sum()
+    total_seconds = int(perm_dur)
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    print(f"Total Permutation Duration: {hours}h {minutes}m {seconds}s")
+
     print(f"#Ensembles: {df_songs["n_permutations"].sum()}")
     print(f"Avg. Ensembles: {df_songs["n_permutations"].mean()}")
 
@@ -145,7 +164,7 @@ def figure_tracks_per_voice_instrument(df_tracks):
                 alpha=0.3
             )
         )
-        
+
         y_tick_labels.append(f"{cur_instrument.value}")
 
     for cur_voice in Voices:
@@ -229,7 +248,7 @@ def figure_pitch_hist_SATB():
             alpha=0.6,
             ax=axes_flat[cur_idx]
         )
-        
+
         sns.despine(right=False)
         axes_flat[cur_idx].set_xlim((20, 90))
         ax_count.set_ylim((0, 2375))
@@ -242,7 +261,7 @@ def figure_pitch_hist_SATB():
             ),
             fontsize=12)
         axes_flat[cur_idx].set_xlabel("MIDI Pitch")
-        
+
     plt.tight_layout()
     plt.savefig('pitch_hist_SATB.pdf')
 
@@ -250,8 +269,9 @@ def figure_pitch_hist_SATB():
 def main():
     cbdb = SongDB()
     df_songs, df_tracks = collect_data(cbdb)
+    df_performers = pd.read_csv(Path(os.environ["CHORALEDB_PATH"]) / "performers.csv", sep=";")
 
-    print_tables(df_songs=df_songs, df_tracks=df_tracks)  
+    print_tables(df_songs=df_songs, df_tracks=df_tracks, df_performers=df_performers)
     figure_tracks_per_voice_instrument(df_tracks)
     figure_pitch_hist_SATB()
 
