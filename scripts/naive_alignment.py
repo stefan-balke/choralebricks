@@ -1,3 +1,6 @@
+"""
+This script aligns the notes from the audio file to the sheet music by a naive 1-1 mapping.
+"""
 import numpy as np
 from pathlib import Path
 import logging
@@ -27,7 +30,7 @@ def main():
             cur_sheet_music = cur_sheet_music.sort_values("start_meas")
             cur_notes = read_notes(cur_track.path_notes)
             cur_notes = cur_notes.sort_values("t_start")
-            
+
             # get midi pitches from mean f0
             cur_notes["pitch"] = 12 * (np.log2(np.asanyarray(cur_notes["f0_mean"])) - np.log2(440.0)) + 69
             cur_notes["pitch"] = cur_notes["pitch"].round().astype("int")
@@ -56,7 +59,7 @@ def main():
             if not any(cur_notes["pitch"].values == cur_sheet_music["pitch"].values):
                 logging.info(f"Found pitch problem in {cur_track.song_id} -> {cur_track.path_audio.name}")
                 logging.info(cur_notes)
-                
+
                 if any(abs(cur_notes["pitch"].values - cur_sheet_music["pitch"].values) == 12):
                     logging.info("Only octave deltas.")
                 else:
@@ -73,7 +76,7 @@ def main():
                 sep=";",
                 index=False
             )
-            
+
 
         except FileNotFoundError:
             continue

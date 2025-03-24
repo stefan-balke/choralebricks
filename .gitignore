@@ -119,6 +119,7 @@ MANIFEST
 
 *.wav
 scripts/alignments
+scripts/f0_conversion
 
 docs/build
 docs/source/generated
