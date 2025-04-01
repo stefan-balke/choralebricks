@@ -19,13 +19,13 @@ def main():
 
     for cur_song in cbdb.songs:
         logger.info(f"Processing {cur_song}...")
-        
+
         # Draw random ensemble...
         cur_ensemble = EnsembleRandom(cur_song)
-        
+
         # Get the associated tracks...
         cur_tracks = cur_ensemble.get_tracks()
-        
+
         # Draw random gains...
         random_gains = np.random.uniform(-6, 6, size=4)
 
