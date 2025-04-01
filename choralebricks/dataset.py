@@ -49,6 +49,9 @@ class Track(BaseModel):
             values["instrument_type"] = InstrumentType.WOODWIND
         return values
 
+    def __repr__(self):
+        return f"(V: {self.voice}, I: {self.instrument})"
+
 
 class Song:
     """
