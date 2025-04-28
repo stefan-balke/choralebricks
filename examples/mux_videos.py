@@ -66,7 +66,7 @@ def mux_audio_video(cur_song_id, cur_ensemble):
             The unique identifier of the song to be processed.
         cur_ensemble : dict
             A dictionary mapping voice names to instrument names. 
-            For example: {"soprano": "piano", "alto": "violin"}.
+            For example: {1: "tp", 2: "fh", 3: "bar", 4: "tba"}.
 
         Raises
         ------

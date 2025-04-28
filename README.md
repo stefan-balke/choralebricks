@@ -13,14 +13,14 @@ If you use ChoraleBricks in your academic work, please cite this article:
 
 :blue_book: Stefan Balke, Axel Berndt, and Meinard Müller
 [**ChoraleBricks: A Modular Multitrack Dataset for Wind Music Research**](#)
-Submitted, 2025.
+Transactions of the International Society for Music Information Retrieval, 2025.
 
 
 ```bibtex
 @article{BalkeBM24_ChoraleBricks,
   author  = {Stefan Balke and Axel Berndt and Meinard M{\"u}ller},
   title   = {{ChoraleBricks}: A Modular Multitrack Dataset for Wind Music Research},
-  journal = {Submitted},
+  journal = {Transactions of the International Society for Music Information Retrieval},
   year    = {2025}
 }
 ```
@@ -34,7 +34,9 @@ Clone repository, then:
     poetry install
 ```
 
-Dowload the corresponding audio files from Zenodo: *Link follows when published*.
+Dowload the corresponding audio files from Zenodo:
+
+https://zenodo.org/records/15081741
 
 ## Usage
 

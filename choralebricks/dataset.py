@@ -103,10 +103,13 @@ class Song:
         self.tracks: list[Track] = []
         self._current_index = 0
 
-        self.df_meta_tracks = pd.read_csv(self.song_dir.parent / "metadata_tracks.csv", sep=";")
-        self.df_meta_tracks = self.df_meta_tracks[self.df_meta_tracks["song_id"] == self.id]
+        # check if the song_dir exists
+        # (otherwise, it is a dummy song for testing purposes)
+        if self.song_dir.is_dir():
+            self.df_meta_tracks = pd.read_csv(self.song_dir.parent / "metadata_tracks.csv", sep=";")
+            self.df_meta_tracks = self.df_meta_tracks[self.df_meta_tracks["song_id"] == self.id]
 
-        self.__collect_tracks()
+            self.__collect_tracks()
 
     def __repr__(self):
         return f"<{self.id}, {self.composer}, #Tracks: {len(self.tracks)}>"
