@@ -36,7 +36,8 @@ class Track(BaseModel):
     voice: int = 0
     instrument: Instrument
     instrument_type: InstrumentType = None
-    player_id: Optional[str] = None
+    date: Optional[str] = None
+    performer: Optional[str] = None
     microphone: Optional[str] = None
     room: Optional[str] = None
 
@@ -186,6 +187,10 @@ class Song:
                 sample_rate=file_info.samplerate,
                 voice=int(cur_meta_track["voice"]),
                 instrument=Instrument(cur_meta_track["instrument"]),
+                date=cur_meta_track["date"],
+                performer=cur_meta_track["performer"],
+                microphone=cur_meta_track["microphone"],
+                room=cur_meta_track["room"],
             )
             self.tracks.append(cur_track)
 

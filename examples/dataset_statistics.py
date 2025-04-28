@@ -10,11 +10,12 @@ import numpy as np
 import soundfile as sf
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
+import matplotlib
 import seaborn as sns
 
 from choralebricks.dataset import SongDB, EnsemblePermutations
 from choralebricks.constants import (
-    Instrument, Voices, VOICE_COLORS, VOICE_STRINGS, VOICE_STRINGS_SHORT
+    Instrument, Voices, VOICE_COLORS, VOICE_STRINGS
 )
 from choralebricks.utils import voice_to_name, get_voice_from_int, read_notes
 from choralebricks.generators import tracks
@@ -47,7 +48,10 @@ def collect_data(cbdb):
             cur_track_info["voice"] = cur_track.voice
             cur_track_info["instrument"] = cur_track.instrument.value
             cur_track_info["instrument_type"] = cur_track.instrument_type.value
-            cur_track_info["player_id"] = cur_track.player_id
+            cur_track_info["performer"] = cur_track.performer
+            cur_track_info["room"] = cur_track.room
+            cur_track_info["microphone"] = cur_track.microphone
+            cur_track_info["date"] = cur_track.date
             cur_track_info["audio_dur"] = cur_track_wav_info.duration
             cur_track_durs.append(cur_track_wav_info.duration)
 
@@ -58,6 +62,7 @@ def collect_data(cbdb):
 
     df_songs = pd.DataFrame(df_songs)
     df_tracks = pd.DataFrame(df_tracks)
+    df_tracks["date"] = pd.to_datetime(df_tracks["date"], format="%Y-%m-%d")
 
     return df_songs, df_tracks
 
@@ -266,14 +271,59 @@ def figure_pitch_hist_SATB():
     plt.savefig('pitch_hist_SATB.pdf')
 
 
+def figure_timeline_recordings(df_tracks):
+    # Figure: Timeline of Number of Records per Day
+    df_timeline = df_tracks[["date", "instrument"]]
+    df_timeline.set_index("date", inplace=True)
+    daily_counts = df_timeline.groupby([pd.Grouper(freq="D"), "instrument"]).size().unstack(fill_value=0)
+
+    # Choose a colormap
+    cmap = matplotlib.colormaps.get_cmap('tab20')
+
+    # Generate colors
+    colors = [cmap(i) for i in range(len(daily_counts.columns))]
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    bottom = None
+    for idx, instrument in enumerate(daily_counts.columns):
+        ax.bar(
+            daily_counts.index,
+            daily_counts[instrument],
+            bottom=bottom,
+            label=instrument,
+            color=colors[idx],
+            width=1.0,
+            align='center'
+        )
+        if bottom is None:
+            bottom = daily_counts[instrument]
+        else:
+            bottom = bottom + daily_counts[instrument]
+
+    # Decorations
+    ax.set_title("Timeline of Number of Records per Day (by Instrument)", fontsize=16)
+    ax.set_xlabel("Date", fontsize=14)
+    ax.set_ylabel("Number of Records", fontsize=14)
+    ax.legend(title="Instrument", bbox_to_anchor=(1.05, 1), loc="upper left", fontsize=10)
+    ax.tick_params(axis="x", rotation=45)
+    ax.grid(axis="y", linestyle="--", alpha=0.7)
+
+    fig.autofmt_xdate()
+    plt.tight_layout()
+    plt.savefig('timeline_recordings_stacked.pdf')
+
+
 def main():
     cbdb = SongDB()
     df_songs, df_tracks = collect_data(cbdb)
-    df_performers = pd.read_csv(Path(os.environ["CHORALEDB_PATH"]) / "performers.csv", sep=";")
+    df_performers = pd.read_csv(Path(os.environ["CHORALEDB_PATH"]) / "metadata_performers.csv", sep=";")
 
     print_tables(df_songs=df_songs, df_tracks=df_tracks, df_performers=df_performers)
     figure_tracks_per_voice_instrument(df_tracks)
     figure_pitch_hist_SATB()
+    figure_timeline_recordings(df_tracks)
 
     plt.show()
 
