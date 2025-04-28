@@ -251,7 +251,7 @@ class SongDB:
         df_meta_songs = pd.read_csv(self.root_dir / "metadata_songs.csv", sep=";")
 
         for _, cur_meta_song in df_meta_songs.iterrows():
-            logger.info(f"Adding song {cur_meta_song["song_id"]}...")
+            logger.info(f"Adding song {cur_meta_song['song_id']}...")
             cur_path_song = self.root_dir / cur_meta_song["song_id"]
             cur_song = Song(song_dir=cur_path_song,
                             composer=cur_meta_song["composer"],
