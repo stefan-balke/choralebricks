@@ -15,7 +15,7 @@ class Voices(Enum):
 
 class Instrument(Enum):
     """
-    Insturments and their abbreviations.
+    Instruments and their abbreviations.
     """
     FLUTE = "fl"
     OBOE = "ob"

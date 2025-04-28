@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Iterator, Optional, Union
 
 import numpy as np
+import pandas as pd
 import soundfile as sf
 from pydantic import BaseModel, model_validator
 
@@ -55,27 +56,59 @@ class Track(BaseModel):
 
 class Song:
     """
-    Represents the information about a song.
+    Represents the information about a song, including its directory, tracks, and associated metadata.
 
-    Attributes:
-        id (str): Identifier (usually the folder name).
-        song_dir (Path): Root directory of the song.
-        tracks (list[Track]): List of associated multi-tracks.
-        score (tbd): Score representation of the song.
-        alignment (tbd): Global alignment from score to audio.
+    Attributes
+    ----------
+    id : str
+        Identifier of the song, typically the folder name.
+    song_dir : Path
+        Root directory of the song.
+    tracks : list[Track]
+        List of associated multi-tracks for the song.
+    score : tbd
+        Score representation of the song (to be defined).
+    alignment : tbd
+        Global alignment from score to audio (to be defined).
+
+    Methods
+    -------
+    __repr__():
+        Returns a string representation of the song, including its ID and the number of tracks.
+    __len__():
+        Returns the number of tracks in the song.
+    __iter__():
+        Initializes the iterator for the tracks.
+    __next__():
+        Returns the next track in the iteration.
+    __getitem__(key: Union[int, str]) -> Track:
+        Retrieves a track by its index or string identifier.
+    __collect_tracks(suffix="wav"):
+        Collects and initializes track objects from the song's directory.
     """
 
-    def __init__(self, song_dir: str, **kwargs) -> None:
+    def __init__(self,
+                 song_dir: str,
+                 title: str = None,
+                 composer: str = None,
+                 year: int = None,
+                 **kwargs) -> None:
         super().__init__(**kwargs)
         self.song_dir: Path = song_dir
+        self.title: str = title
+        self.composer: str = composer
+        self.year: int = year
         self.id: str = self.song_dir.name
         self.tracks: list[Track] = []
         self._current_index = 0
 
+        self.df_meta_tracks = pd.read_csv(self.song_dir.parent / "metadata_tracks.csv", sep=";")
+        self.df_meta_tracks = self.df_meta_tracks[self.df_meta_tracks["song_id"] == self.id]
+
         self.__collect_tracks()
 
     def __repr__(self):
-        return f"{self.id}, " f"#Tracks: {len(self.tracks)}"
+        return f"<{self.id}, {self.composer}, #Tracks: {len(self.tracks)}>"
 
     def __len__(self):
         return len(self.tracks)
@@ -115,17 +148,19 @@ class Song:
         tracks_dir = self.song_dir / "tracks_normalized"
 
         # get all the audio files
-        path_tracks = [f for f in tracks_dir.glob(f"*.{suffix}") if f.is_file()]
+        for _, cur_meta_track in self.df_meta_tracks.iterrows():
+            logger.info(f"Adding track: {cur_meta_track.path_audio}...")
+            cur_path_tracks = tracks_dir / cur_meta_track.path_audio
 
-        for cur_path_tracks in path_tracks:
-            logger.info(f"Adding track: {cur_path_tracks.name}...")
+            try:
+                assert cur_path_tracks.is_file()
+            except AssertionError:
+                logger.error(f"File {cur_path_tracks} not found.")
+
             file_info = sf.info(cur_path_tracks)
 
-            # extract voice and instrument from file name
-            voice, instrument = cur_path_tracks.stem.split("_")
-
-            cur_path_f0 = self.song_dir / "annotations" / f"{cur_path_tracks.stem}_f0_filled.csv"
-            cur_path_notes = self.song_dir / "annotations" / f"{cur_path_tracks.stem}_notes.csv"
+            cur_path_f0 = self.song_dir / "annotations" / cur_meta_track["path_f0"]
+            cur_path_notes = self.song_dir / "annotations" / cur_meta_track["path_notes"]
             cur_path_sheet_music_csv = self.song_dir / f"{self.id}.csv"
             cur_path_sheet_music_midi = self.song_dir / f"{self.id}.mid"
             cur_path_sheet_music_mxml = self.song_dir / f"{self.id}.musicxml"
@@ -149,8 +184,8 @@ class Song:
                 num_channels=file_info.channels,
                 min_samples=file_info.frames,
                 sample_rate=file_info.samplerate,
-                voice=int(voice),
-                instrument=Instrument(instrument),
+                voice=int(cur_meta_track["voice"]),
+                instrument=Instrument(cur_meta_track["instrument"]),
             )
             self.tracks.append(cur_track)
 
@@ -205,11 +240,15 @@ class SongDB:
             raise TypeError("Key must be a string (song_id) or an integer (index).")
 
     def __collect_songs(self):
-        path_songs = [f for f in self.root_dir.glob("*") if f.is_dir()]
+        df_meta_songs = pd.read_csv(self.root_dir / "metadata_songs.csv", sep=";")
 
-        for cur_path_song in path_songs:
-            logger.info(f"Adding song {cur_path_song}...")
-            cur_song = Song(song_dir=cur_path_song)
+        for _, cur_meta_song in df_meta_songs.iterrows():
+            logger.info(f"Adding song {cur_meta_song["song_id"]}...")
+            cur_path_song = self.root_dir / cur_meta_song["song_id"]
+            cur_song = Song(song_dir=cur_path_song,
+                            composer=cur_meta_song["composer"],
+                            title=cur_meta_song["title"],
+                            year=cur_meta_song["year"])
             self.songs.append(cur_song)
 
 
