@@ -21,7 +21,11 @@ Transactions of the International Society for Music Information Retrieval, 2025.
   author  = {Stefan Balke and Axel Berndt and Meinard M{\"u}ller},
   title   = {{ChoraleBricks}: A Modular Multitrack Dataset for Wind Music Research},
   journal = {Transactions of the International Society for Music Information Retrieval},
-  year    = {2025}
+  volume = {8},
+  number = {1},
+  pages = {39--54},
+  year = {2025},
+  doi = {10.5334/tismir.252}
 }
 ```
 
