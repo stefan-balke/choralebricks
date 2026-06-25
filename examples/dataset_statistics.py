@@ -72,13 +72,13 @@ def print_tables(df_songs, df_tracks, df_performers=None):
     if df_performers is not None:
         print(SEPARATOR)
         print(f"#Performers: {df_performers.shape[0]}")
-        print(f"Min. Age: {(2025 - df_performers["birthyear"]).min()}")
-        print(f"Max. Age: {(2025 - df_performers["birthyear"]).max()}")
-        print(f"Avg. Age: {(2025 - df_performers["birthyear"]).mean()}")
+        print(f"Min. Age: {(2025 - df_performers['birthyear']).min()}")
+        print(f"Max. Age: {(2025 - df_performers['birthyear']).max()}")
+        print(f"Avg. Age: {(2025 - df_performers['birthyear']).mean()}")
         print(SEPARATOR)
 
     print(SEPARATOR)
-    print(f"#Songs: {df_tracks["song_id"].nunique()}")
+    print(f"#Songs: {df_tracks['song_id'].nunique()}")
     print(f"#Tracks: {df_tracks.shape[0]}")
     print(SEPARATOR)
 
@@ -86,7 +86,7 @@ def print_tables(df_songs, df_tracks, df_performers=None):
     print("#Tracks per Song")
     print(SEPARATOR)
     print(df_tracks.groupby("song_id").size())
-    print(f"Avg. Tracks per Song: {df_tracks.groupby("song_id").size().mean()}")
+    print(f"Avg. Tracks per Song: {df_tracks.groupby('song_id').size().mean()}")
 
     print(SEPARATOR)
     print("#Tracks per Voice")
@@ -110,7 +110,7 @@ def print_tables(df_songs, df_tracks, df_performers=None):
         sum=("audio_dur", "sum"),
     )
     df_songs_grouped["sum"] = pd.to_datetime(df_songs_grouped["sum"], unit='s').dt.strftime('%H:%M:%S')
-    print(f"Avg. Tracks per Instrument: {df_songs_grouped["size"].mean()}")
+    print(f"Avg. Tracks per Instrument: {df_songs_grouped['size'].mean()}")
 
     audio_dur = df_tracks["audio_dur"].sum()
     total_seconds = int(audio_dur)
@@ -143,8 +143,8 @@ def print_tables(df_songs, df_tracks, df_performers=None):
     minutes, seconds = divmod(remainder, 60)
     print(f"Total Permutation Duration: {hours}h {minutes}m {seconds}s")
 
-    print(f"#Ensembles: {df_songs["n_permutations"].sum()}")
-    print(f"Avg. Ensembles: {df_songs["n_permutations"].mean()}")
+    print(f"#Ensembles: {df_songs['n_permutations'].sum()}")
+    print(f"Avg. Ensembles: {df_songs['n_permutations'].mean()}")
 
 
 def figure_tracks_per_voice_instrument(df_tracks):
