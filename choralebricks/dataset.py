@@ -2,6 +2,7 @@ import copy
 import logging
 import os
 from abc import ABC, abstractmethod
+from importlib.metadata import PackageNotFoundError, version as distribution_version
 from itertools import product
 from pathlib import Path
 from typing import Any, Iterator, Optional, Union
@@ -11,10 +12,20 @@ import pandas as pd
 import soundfile as sf
 from pydantic import BaseModel, model_validator
 
-from .constants import (INSTRUMENTS_BRASS, INSTRUMENTS_WOODWIND, Instrument,
-                        InstrumentType)
+from .constants import (INSTRUMENT_FROM_NAME, INSTRUMENTS_BRASS, INSTRUMENTS_WOODWIND,
+                        Instrument, InstrumentType, Voices, VOICE_STRINGS)
 
 logger = logging.getLogger(__name__)
+
+
+def package_version() -> str:
+    try:
+        return distribution_version("choralebricks")
+    except PackageNotFoundError:
+        return "unknown"
+
+
+PACKAGE_VERSION = package_version()
 
 
 class Track(BaseModel):
@@ -29,11 +40,13 @@ class Track(BaseModel):
     path_sheet_music_csv: Optional[Union[str, Path]] = None
     path_sheet_music_midi: Optional[Union[str, Path]] = None
     path_sheet_music_mxml: Optional[Union[str, Path]] = None
+    path_sheet_music_mei: Optional[Union[str, Path]] = None
+    path_sheet_music_pdf: Optional[Union[str, Path]] = None
     path_chords: Optional[Union[str, Path]] = None
     num_channels: int = 0
     min_samples: int = 0
     sample_rate: int = 0
-    voice: int = 0
+    part: str = None
     instrument: Instrument
     instrument_type: InstrumentType = None
     date: Optional[str] = None
@@ -52,7 +65,18 @@ class Track(BaseModel):
         return values
 
     def __repr__(self):
-        return f"(V: {self.voice}, I: {self.instrument})"
+        return f"(P: {self.part}, I: {self.instrument})"
+
+
+def optional_metadata_value(value: Any) -> Any:
+    if pd.isna(value):
+        return None
+    return value
+
+
+def existing_path(path: Path) -> Optional[Path]:
+    """Return ``path`` if it points at a file, otherwise ``None``."""
+    return path if path.is_file() else None
 
 
 class Song:
@@ -93,12 +117,14 @@ class Song:
                  title: str = None,
                  composer: str = None,
                  year: int = None,
+                 dataset_type: str = "choralebricks",
                  **kwargs) -> None:
         super().__init__(**kwargs)
         self.song_dir: Path = song_dir
         self.title: str = title
         self.composer: str = composer
         self.year: int = year
+        self.dataset_type: str = dataset_type
         self.id: str = self.song_dir.name
         self.tracks: list[Track] = []
         self._current_index = 0
@@ -132,12 +158,12 @@ class Song:
         if isinstance(key, str):
             try:
                 voice, inst = key.split("_")
-                voice = int(voice)
-            except ValueError as exc:
+                want_part = VOICE_STRINGS[Voices(int(voice))]
+            except (ValueError, KeyError) as exc:
                 raise KeyError(f"Track key '{key}' is not in the correct format e.g. '01_tp'.") from exc
 
             for track in self.tracks:
-                if int(track.voice) == int(voice) and track.instrument.value == inst:
+                if track.part == want_part and track.instrument.value == inst:
                     return track
             raise KeyError(f"Track with id '{key}' not found.")
         elif isinstance(key, int):
@@ -148,8 +174,39 @@ class Song:
         else:
             raise TypeError("Key must be a string (track_id) or an integer (index).")
 
+    def _resolve_score_paths(self) -> dict:
+        """Resolve the per-song score / render file paths for the dataset type.
+
+        The naming scheme is determined by ``dataset_type`` (no auto-detection):
+
+        - ``"choralebricks"``: ``<id>.csv`` / ``.mid`` / ``.mei`` / ``.pdf``
+        - ``"choralewind"``: ``<id>_01-preproc.csv`` / ``.mid`` / ``.mei`` / ``.pdf``
+
+        MusicXML and chord annotations are optional and resolved by existence.
+        """
+        sd, sid = self.song_dir, self.id
+        if self.dataset_type == "choralebricks":
+            stem = sid
+        elif self.dataset_type == "choralewind":
+            stem = f"{sid}_01-preproc"
+        else:
+            raise ValueError(
+                f"Unknown dataset type '{self.dataset_type}'. "
+                "Expected 'choralebricks' or 'choralewind'."
+            )
+
+        return {
+            "csv": existing_path(sd / f"{stem}.csv"),
+            "midi": existing_path(sd / f"{stem}.mid"),
+            "mei": existing_path(sd / f"{stem}.mei"),
+            "pdf": existing_path(sd / f"{stem}.pdf"),
+            "mxml": existing_path(sd / f"{sid}.musicxml"),
+            "chords": existing_path(sd / "annotations" / "chords.csv"),
+        }
+
     def __collect_tracks(self, suffix="wav"):
         tracks_dir = self.song_dir / "tracks_normalized"
+        score_paths = self._resolve_score_paths()
 
         # get all the audio files
         for _, cur_meta_track in self.df_meta_tracks.iterrows():
@@ -165,10 +222,6 @@ class Song:
 
             cur_path_f0 = self.song_dir / "annotations" / cur_meta_track["path_f0"]
             cur_path_notes = self.song_dir / "annotations" / cur_meta_track["path_notes"]
-            cur_path_sheet_music_csv = self.song_dir / f"{self.id}.csv"
-            cur_path_sheet_music_midi = self.song_dir / f"{self.id}.mid"
-            cur_path_sheet_music_mxml = self.song_dir / f"{self.id}.musicxml"
-            cur_path_chords = self.song_dir / "annotations" / f"chords.csv"
 
             if not cur_path_f0.is_file():
                 cur_path_f0 = None
@@ -181,19 +234,21 @@ class Song:
                 path_audio=cur_path_tracks,
                 path_f0=cur_path_f0,
                 path_notes=cur_path_notes,
-                path_sheet_music_csv=cur_path_sheet_music_csv,
-                path_sheet_music_midi=cur_path_sheet_music_midi,
-                path_sheet_music_mxml=cur_path_sheet_music_mxml,
-                path_chords=cur_path_chords,
+                path_sheet_music_csv=score_paths["csv"],
+                path_sheet_music_midi=score_paths["midi"],
+                path_sheet_music_mxml=score_paths["mxml"],
+                path_sheet_music_mei=score_paths["mei"],
+                path_sheet_music_pdf=score_paths["pdf"],
+                path_chords=score_paths["chords"],
                 num_channels=file_info.channels,
                 min_samples=file_info.frames,
                 sample_rate=file_info.samplerate,
-                voice=int(cur_meta_track["voice"]),
-                instrument=Instrument(cur_meta_track["instrument"]),
-                date=cur_meta_track["date"],
-                performer=cur_meta_track["performer"],
-                microphone=cur_meta_track["microphone"],
-                room=cur_meta_track["room"],
+                part=cur_meta_track["part"],
+                instrument=INSTRUMENT_FROM_NAME[cur_meta_track["instrument"]],
+                date=optional_metadata_value(cur_meta_track["date"]),
+                performer=optional_metadata_value(cur_meta_track["performer"]),
+                microphone=optional_metadata_value(cur_meta_track["microphone"]),
+                room=optional_metadata_value(cur_meta_track["room"]),
             )
             self.tracks.append(cur_track)
 
@@ -203,8 +258,15 @@ class SongDB:
     Represents the Song Database. Collects songs from a pre-defined folder structure.
     """
 
-    def __init__(self, root_dir: str = None, **kwargs) -> None:
+    def __init__(self, root_dir: str = None, type: str = "choralebricks", **kwargs) -> None:
         super().__init__(**kwargs)
+
+        if type not in ("choralebricks", "choralewind"):
+            raise ValueError(
+                f"Unknown dataset type '{type}'. "
+                "Expected 'choralebricks' or 'choralewind'."
+            )
+        self.dataset_type = type
 
         if root_dir is None:
             if "CHORALEDB_PATH" in os.environ:
@@ -256,7 +318,8 @@ class SongDB:
             cur_song = Song(song_dir=cur_path_song,
                             composer=cur_meta_song["composer"],
                             title=cur_meta_song["title"],
-                            year=cur_meta_song["year"])
+                            year=cur_meta_song["year"],
+                            dataset_type=self.dataset_type)
             self.songs.append(cur_song)
 
 
@@ -284,12 +347,12 @@ class EnsembleRandom(Ensemble):
         # copy of the song with randomly fitered tracks
         logger.info(f"Track selection in {self.song.id}")
 
-        voices: list[int] = [cur_track.voice for cur_track in self.song.tracks]
+        parts: list[str] = [cur_track.part for cur_track in self.song.tracks]
         track_choice_ids: list[int] = []
 
-        # for each voice, draw a track
-        for cur_voice in set(voices):
-            candidate_idcs: np.array = np.where(np.asarray(voices) == cur_voice)[0]
+        # for each part, draw a track
+        for cur_part in set(parts):
+            candidate_idcs: np.array = np.where(np.asarray(parts) == cur_part)[0]
             choice_id: int = int(np.random.choice(candidate_idcs))
             track_choice_ids.append(choice_id)
 
@@ -301,30 +364,30 @@ class EnsemblePermutations(Ensemble):
     def __init__(self, song: Song):
         self.song = song
         self.ensembles = list()
-        self.tracks_by_voice: dict = dict()
+        self.tracks_by_part: dict = dict()
 
-        self._categorize_tracks_byvoices()
+        self._categorize_tracks_byparts()
 
         # getting all the permutations as a cartesian product of all tracks
         # Note: Converting it to a list might get big, if more data is stored
-        self._permutations: list[tuple[int]] = list(product(*self.tracks_by_voice.values()))
+        self._permutations: list[tuple[int]] = list(product(*self.tracks_by_part.values()))
 
-    def _categorize_tracks_byvoices(self):
+    def _categorize_tracks_byparts(self):
         """
-        Categorize the voices in the respective bucket 1, 2, 3, or 4, based on the filename.
+        Categorize the tracks into their respective part bucket (S, A, T, B).
         """
-        # for each track, get the associated voice
-        voices: list[int] = [cur_track.voice for cur_track in self.song.tracks]
+        # for each track, get the associated part
+        parts: list[str] = [cur_track.part for cur_track in self.song.tracks]
 
-        # for each voice, collect the track object and add to the list in the dict
-        for cur_voice in set(voices):
-            candidate_idcs: np.array = np.where(np.asarray(voices) == cur_voice)[0]
+        # for each part, collect the track object and add to the list in the dict
+        for cur_part in set(parts):
+            candidate_idcs: np.array = np.where(np.asarray(parts) == cur_part)[0]
 
             # init list in the list which will hold the objects
-            self.tracks_by_voice[str(cur_voice)] = list()
+            self.tracks_by_part[cur_part] = list()
 
             for cur_idc in candidate_idcs:
-                self.tracks_by_voice[str(cur_voice)].append(cur_idc)
+                self.tracks_by_part[cur_part].append(cur_idc)
 
     def filter_tracks(self, track_choice_ids):
         """

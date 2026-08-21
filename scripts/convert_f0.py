@@ -67,7 +67,11 @@ def main():
         cur_f0_new = pd.DataFrame()
         cur_f0_new["t"] = t_f0_new
         cur_f0_new["f0"] = f0_new
-        cur_f0_new.to_csv(cur_track.path_f0.with_name(cur_track.path_f0.stem + "_filled.csv"), index=False)
+        cur_f0_new.to_csv(
+            cur_track.path_f0.with_name(cur_track.path_f0.stem + "_filled.csv"),
+            sep=";",
+            index=False,
+        )
 
         print(cur_f0_old.shape, cur_f0_new.shape)
 

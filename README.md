@@ -31,6 +31,10 @@ Transactions of the International Society for Music Information Retrieval, 2025.
 
 ## :computer: Installation and Setup
 
+> [!WARNING]
+> This repository currently supports parsing ChoraleBricks v1.1 and ChoraleWind v1.0, it is not backwards compatible.
+> If you want to use this repo with ChoraleBricks v1.0.x, please use an older version tag in GitHub.
+
 Clone repository, then:
 
 ```bash
@@ -40,7 +44,7 @@ uv sync
 
 Download the corresponding audio files from Zenodo:
 
-[https://zenodo.org/records/15081741](https://zenodo.org/records/15463260)
+[https://zenodo.org/records/15463260](https://zenodo.org/records/15463260)
 
 ## Usage
 

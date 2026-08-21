@@ -11,11 +11,15 @@ In ISMIR, vol. 5, pp. 66-71. 2005.
 """
 import math
 import os
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from lark import Lark, Transformer
+
+from choralebricks.format_spec_csv import CHORD_FIELDS
+from choralebricks.utils import read_validated_csv
 
 class Chord():
     """Representation of a chord provided in Harte notation
@@ -71,7 +75,7 @@ class ChordSequence():
     def from_csv(file_path):
         """Read a CSV file with chord annotations into a ChordSequence object
 
-        Expected CSV format: start_meas,end_meas,chord
+        Expected CSV format: start_meas;end_meas;chord
         where start_meas is the start time of the chord in measures,
               end_meas is the end time of the chord in measures,
               chord is a string label in the notation by Harte et al.
@@ -85,7 +89,9 @@ class ChordSequence():
         -------
         seq : ChordSequence
         """
-        df = pd.read_csv(file_path)
+        path = Path(file_path)
+        # Validate the v1.1 chord schema; a mismatch raises SchemaValidationError.
+        df = read_validated_csv(path, CHORD_FIELDS)
 
         start_meas = df["start_meas"].to_numpy()
         end_meas = df["end_meas"].to_numpy()

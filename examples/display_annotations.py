@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
 from choralebricks.generators import tracks
-from choralebricks.utils import read_f0, read_notes
+from choralebricks.utils import midi2hz, read_f0, read_notes
 
 
 def main():
@@ -10,7 +10,7 @@ def main():
 
     print(
         cur_track.path_audio.name,
-        cur_track.voice,
+        cur_track.part,
         cur_track.instrument,
         cur_track.instrument_type
     )
@@ -19,7 +19,7 @@ def main():
     cur_notes = read_notes(cur_track.path_notes)
 
     mask = cur_f0["t"].apply(
-        lambda t: any((t >= row["t_start"]) and (t <= row["t_start"] + row["t_dur"]) for _, row in cur_notes.iterrows())
+        lambda t: any((t >= row["start_sec"]) and (t <= row["end_sec"]) for _, row in cur_notes.iterrows())
     )
 
     # Filter cur_f0 using the the notes as mask
@@ -51,9 +51,10 @@ def main():
 
     # Overlay data (second dataframe)
     for _, row in cur_notes.iterrows():
+        note_hz = midi2hz(row["pitch"] + row["pitch_dev_cents"] / 100.0, f_ref=440.0)
         plt.gca().add_patch(plt.Rectangle(
-            (row["t_start"], row["f0_mean"] - 5),
-            row["t_dur"],
+            (row["start_sec"], note_hz - 5),
+            row["dur_sec"],
             10,
             color="orange",
             alpha=0.3

@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 
 NUM_VOICES = 4
 
+# Reference tuning frequency for A4 used across the dataset (Hz).
+A4_REFERENCE_HZ = 442.0
+
 class Voices(Enum):
     """
     Available voices (SATB).
@@ -25,6 +28,8 @@ class Instrument(Enum):
     SAX_ALTO = "as"
     SAX_TENOR = "ts"
     SAX_BARITONE = "bs"
+    SAX_SOPRANO = "ss"
+    BASSOON = "bsn"
     TRUMPET = "tp"
     FLUGELHORN = "fh"
     BARITONE = "bar"
@@ -48,8 +53,12 @@ INSTRUMENT_STRINGS = {
     Instrument.CLARINET_BASS: "Bass Clarinet",
     Instrument.SAX_ALTO: "Alto Saxophone",
     Instrument.SAX_TENOR: "Tenor Saxophone",
-    Instrument.SAX_BARITONE: "Baritone Saxophone"
+    Instrument.SAX_BARITONE: "Baritone Saxophone",
+    Instrument.SAX_SOPRANO: "Soprano Saxophone",
+    Instrument.BASSOON: "Bassoon"
 }
+
+INSTRUMENT_FROM_NAME = {name: inst for inst, name in INSTRUMENT_STRINGS.items()}
 
 
 class InstrumentType(Enum):
@@ -80,7 +89,9 @@ INSTRUMENTS_WOODWIND = [
     Instrument.CLARINET_BASS,
     Instrument.SAX_ALTO,
     Instrument.SAX_TENOR,
-    Instrument.SAX_BARITONE
+    Instrument.SAX_BARITONE,
+    Instrument.SAX_SOPRANO,
+    Instrument.BASSOON
 ]
 
 VOICE_COLORS = {

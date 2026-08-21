@@ -1,8 +1,11 @@
 [project]
 name = "choralebricks"
-version = "0.1.0"
+version = "1.1.0"
 description = "Supporting package for the ChoraleBricks dataset."
-authors = [{ name = "Stefan Balke", email = "stefan.balke@audiolabs-erlangen.de" }]
+authors = [
+    { name = "Stefan Balke", email = "stefan.balke@audiolabs-erlangen.de" },
+    { name = "Manuel Peters", email = "manuel.petets@audiolabs-erlangen.de" },
+]
 requires-python = ">=3.10"
 readme = "README.md"
 license = "MIT"
@@ -35,7 +38,7 @@ dependencies = [
 examples = [
     "numba",
     "seaborn",
-    "librosa==0.10.2",
+    "librosa>=0.11.0",
 ]
 docs = ["sphinx"]
 
@@ -48,6 +51,7 @@ dev = [
     "pytest",
     "pytest-cov",
     "black",
+    "tqdm>=4.68.3",
 ]
 
 [tool.uv]

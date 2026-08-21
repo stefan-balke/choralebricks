@@ -19,7 +19,7 @@ def main():
         for cur_track in cur_song.tracks:
             cur_meta = {
                 "song_id": cur_song.id,
-                "voice": cur_track.voice,
+                "part": cur_track.part,
                 "instrument": cur_track.instrument.value,
                 "path_audio": cur_track.path_audio.name,
                 "path_f0": cur_track.path_f0.name,

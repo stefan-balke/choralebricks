@@ -13,13 +13,6 @@ import matplotlib.pyplot as plt
 
 import choralebricks
 
-voice2str = {
-    1: "S",
-    2: "A",
-    3: "T",
-    4: "B",
-}
-
 # JI offset by scale degree in semitones (using 7-limit tritone)
 ji_offset = np.array([0, 11.7, 3.9, 15.6, -13.7, -2, -17.5, 2, 13.7, -15.6, 17.6, -11.7]) / 100
 
@@ -37,19 +30,19 @@ def main():
     # load chord annotation as a ChordSequence
     chord_seq = choralebricks.ChordSequence.from_csv(track.path_chords)
 
-    # load score as a Pandas data frame and select only the required voice/part
+    # load score as a Pandas data frame and select only the required part
     score_all = pd.read_csv(track.path_sheet_music_csv, delimiter=";")
-    score = score_all[score_all.part == voice2str[track.voice]]
+    score = score_all[score_all.part == track.part]
 
     # load F0 annotations
-    f0_a = np.loadtxt(track.path_f0, skiprows=1, usecols=(0, 1), delimiter=",")
+    f0_a = np.loadtxt(track.path_f0, skiprows=1, usecols=(0, 1), delimiter=";")
     # make sure that f0 annotations are unique for each time frame
     # TODO: can be removed when annotations are correct
     _, idx = np.unique(f0_a[:,0], return_index=True)
     f0_a = f0_a[idx,:]
 
     # load note annotations
-    notes = np.loadtxt(track.path_notes, skiprows=1, usecols=(0, 1, 2), delimiter=",")
+    notes = pd.read_csv(track.path_notes, sep=";")
 
     # load audio
     x, _ = librosa.load(track.path_audio, sr=fs)
@@ -85,14 +78,21 @@ def main():
 
     i = 0
     for _, row in score.iterrows():
-        assert row.pitch == np.round(choralebricks.utils.hz2midi(notes[i,1], f_ref=442)).astype(int)
+        note = notes.iloc[i]
+        assert int(row.pitch_written) == int(note.pitch_written)
         chord = chord_seq.get_chord_at(row.start_meas)
-        mask = ((t_f0 >= notes[i,0]) & (t_f0 <= (notes[i,0] + notes[i,2])))
+        mask = (
+            (t_f0 >= note.start_sec)
+            & (t_f0 <= note.end_sec)
+        )
         # extend mask a bit for smoother synthesis
         mask = maximum_filter1d(mask, 11, mode='constant', cval=0)
 
-        f0_et[mask] = choralebricks.utils.midi2hz(row.pitch, f_ref=442)
-        f0_ji[mask] = choralebricks.utils.midi2hz(row.pitch + ji_offset[chord.get_interval(row.pitch)], f_ref=442)
+        f0_et[mask] = choralebricks.utils.midi2hz(row.pitch_written, f_ref=440.0)
+        f0_ji[mask] = choralebricks.utils.midi2hz(
+            row.pitch_written + ji_offset[chord.get_interval(row.pitch_written)],
+            f_ref=440.0,
+        )
         i += 1
 
 

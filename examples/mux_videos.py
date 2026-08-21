@@ -73,8 +73,8 @@ def mux_audio_video(cur_song_id, cur_ensemble):
         cur_song_id : str
             The unique identifier of the song to be processed.
         cur_ensemble : dict
-            A dictionary mapping voice names to instrument names. 
-            For example: {1: "tp", 2: "fh", 3: "bar", 4: "tba"}.
+            A dictionary mapping part names (S/A/T/B) to instrument names.
+            For example: {"S": "tp", "A": "fh", "T": "bar", "B": "tba"}.
 
         Raises
         ------
@@ -104,11 +104,11 @@ def mux_audio_video(cur_song_id, cur_ensemble):
     # get selected song
     cur_song = [s for s in cbdb.songs if s.id == cur_song_id][0]
 
-    # filter thrack
+    # filter track
     cur_tracks = []
-    for cur_voice in cur_ensemble.keys():
-        cur_instrument = Instrument(cur_ensemble[cur_voice])
-        cur_tracks.extend([t for t in cur_song.tracks if t.voice == cur_voice and t.instrument == cur_instrument])
+    for cur_part in cur_ensemble.keys():
+        cur_instrument = Instrument(cur_ensemble[cur_part])
+        cur_tracks.extend([t for t in cur_song.tracks if t.part == cur_part and t.instrument == cur_instrument])
 
     print(cur_tracks)
 
@@ -157,16 +157,16 @@ def mux_audio_video(cur_song_id, cur_ensemble):
 
 def main():
     ENSEMBLES = {
-        "Anonymous_AusMeinesHerzensGrunde": {1: "tp", 2: "fh", 3: "bar", 4: "tba"},
-        "Bach_IchStehAnDeinerKrippe": {1: "fl", 2: "cl", 3: "bar", 4: "tba"},
-        "Crueger_AufAufMeinHerzMitFreuden": {1: "as", 2: "as", 3: "bs", 4: "bs"},
-        "Drese_JesuGehVoran": {1: "ob", 2: "fh", 3: "bar", 4: "bcl"},
-        "Gesius_BefiehlDuDeineWege": {1: "fh", 2: "fh", 3: "tb", 4: "tba"},
-        "Gesius_DuFriedensfuerstHerrJesuChrist": {1: "cl", 2: "cl", 3: "bcl", 4: "bcl"},
-        "Jan_DuGrosserSchmerzensmann": {1: "fl", 2: "tp", 3: "bar", 4: "bs"},
-        "Telemann_DerLiebenSonneLichtUndPracht": {1: "fh", 2: "fh", 3: "bar", 4: "bs"},
-        "Vulpius_DieHelleSonnLeuchtJetztHerfuer": {1: "ob", 2: "eh", 3: "bs", 4: "bs"},
-        "Vulpius_ChristusDerIstMeinLeben": {1: "bar", 2: "bar", 3: "bar", 4: "bar"},
+        "Anonymous_AusMeinesHerzensGrunde": {"S": "tp", "A": "fh", "T": "bar", "B": "tba"},
+        "Bach_IchStehAnDeinerKrippe": {"S": "fl", "A": "cl", "T": "bar", "B": "tba"},
+        "Crueger_AufAufMeinHerzMitFreuden": {"S": "as", "A": "as", "T": "bs", "B": "bs"},
+        "Drese_JesuGehVoran": {"S": "ob", "A": "fh", "T": "bar", "B": "bcl"},
+        "Gesius_BefiehlDuDeineWege": {"S": "fh", "A": "fh", "T": "tb", "B": "tba"},
+        "Gesius_DuFriedensfuerstHerrJesuChrist": {"S": "cl", "A": "cl", "T": "bcl", "B": "bcl"},
+        "Jan_DuGrosserSchmerzensmann": {"S": "fl", "A": "tp", "T": "bar", "B": "bs"},
+        "Telemann_DerLiebenSonneLichtUndPracht": {"S": "fh", "A": "fh", "T": "bar", "B": "bs"},
+        "Vulpius_DieHelleSonnLeuchtJetztHerfuer": {"S": "ob", "A": "eh", "T": "bs", "B": "bs"},
+        "Vulpius_ChristusDerIstMeinLeben": {"S": "bar", "A": "bar", "T": "bar", "B": "bar"},
     }
 
     for cur_song_id, cur_ensemble in ENSEMBLES.items():

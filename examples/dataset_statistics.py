@@ -15,9 +15,10 @@ import seaborn as sns
 
 from choralebricks.dataset import SongDB, EnsemblePermutations
 from choralebricks.constants import (
-    Instrument, Voices, VOICE_COLORS, VOICE_STRINGS
+    Instrument, Voices, VOICE_COLORS, VOICE_STRINGS, VOICE_STRINGS_SHORT
 )
-from choralebricks.utils import voice_to_name, get_voice_from_int, read_notes
+from choralebricks.format_spec_csv import SCORE_PART_ORDER
+from choralebricks.utils import voice_to_name, read_notes
 from choralebricks.generators import tracks
 
 logger = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ def collect_data(cbdb):
 
             cur_track_info = dict()
             cur_track_info["song_id"] = cur_track.song_id
-            cur_track_info["voice"] = cur_track.voice
+            cur_track_info["part"] = cur_track.part
             cur_track_info["instrument"] = cur_track.instrument.value
             cur_track_info["instrument_type"] = cur_track.instrument_type.value
             cur_track_info["performer"] = cur_track.performer
@@ -63,21 +64,22 @@ def collect_data(cbdb):
 
     df_songs = pd.DataFrame(df_songs)
     df_tracks = pd.DataFrame(df_tracks)
-    df_tracks["date"] = pd.to_datetime(df_tracks["date"], format="%Y-%m-%d")
+    df_tracks["date"] = pd.to_datetime(df_tracks["date"], format="%Y-%m-%d", errors="coerce")
 
     return df_songs, df_tracks
 
 
-def print_tables(df_songs, df_tracks, df_performers):
-    print(SEPARATOR)
-    print(f"#Performers: {df_performers.shape[0]}")
-    print(f"Min. Age: {(2025 - df_performers["birthyear"]).min()}")
-    print(f"Max. Age: {(2025 - df_performers["birthyear"]).max()}")
-    print(f"Avg. Age: {(2025 - df_performers["birthyear"]).mean()}")
-    print(SEPARATOR)
+def print_tables(df_songs, df_tracks, df_performers=None):
+    if df_performers is not None:
+        print(SEPARATOR)
+        print(f"#Performers: {df_performers.shape[0]}")
+        print(f"Min. Age: {(2025 - df_performers['birthyear']).min()}")
+        print(f"Max. Age: {(2025 - df_performers['birthyear']).max()}")
+        print(f"Avg. Age: {(2025 - df_performers['birthyear']).mean()}")
+        print(SEPARATOR)
 
     print(SEPARATOR)
-    print(f"#Songs: {df_tracks["song_id"].nunique()}")
+    print(f"#Songs: {df_tracks['song_id'].nunique()}")
     print(f"#Tracks: {df_tracks.shape[0]}")
     print(SEPARATOR)
 
@@ -85,12 +87,12 @@ def print_tables(df_songs, df_tracks, df_performers):
     print("#Tracks per Song")
     print(SEPARATOR)
     print(df_tracks.groupby("song_id").size())
-    print(f"Avg. Tracks per Song: {df_tracks.groupby("song_id").size().mean()}")
+    print(f"Avg. Tracks per Song: {df_tracks.groupby('song_id').size().mean()}")
 
     print(SEPARATOR)
-    print("#Tracks per Voice")
+    print("#Tracks per Part")
     print(SEPARATOR)
-    print(df_tracks.groupby("voice").size())
+    print(df_tracks.groupby("part").size())
 
     print(SEPARATOR)
     print("#Tracks per Instrument Type")
@@ -109,7 +111,7 @@ def print_tables(df_songs, df_tracks, df_performers):
         sum=("audio_dur", "sum"),
     )
     df_songs_grouped["sum"] = pd.to_datetime(df_songs_grouped["sum"], unit='s').dt.strftime('%H:%M:%S')
-    print(f"Avg. Tracks per Instrument: {df_songs_grouped["size"].mean()}")
+    print(f"Avg. Tracks per Instrument: {df_songs_grouped['size'].mean()}")
 
     audio_dur = df_tracks["audio_dur"].sum()
     total_seconds = int(audio_dur)
@@ -121,9 +123,9 @@ def print_tables(df_songs, df_tracks, df_performers):
     print(df_songs_grouped)
 
     print(SEPARATOR)
-    print("#Tracks per Voice and Instrument")
+    print("#Tracks per Part and Instrument")
     print(SEPARATOR)
-    print(df_tracks.groupby(["voice", "instrument"]).agg(
+    print(df_tracks.groupby(["part", "instrument"]).agg(
         size=("audio_dur", "size"),
         sum=("audio_dur", "sum"),
         )
@@ -142,22 +144,26 @@ def print_tables(df_songs, df_tracks, df_performers):
     minutes, seconds = divmod(remainder, 60)
     print(f"Total Permutation Duration: {hours}h {minutes}m {seconds}s")
 
-    print(f"#Ensembles: {df_songs["n_permutations"].sum()}")
-    print(f"Avg. Ensembles: {df_songs["n_permutations"].mean()}")
+    print(f"#Ensembles: {df_songs['n_permutations'].sum()}")
+    print(f"Avg. Ensembles: {df_songs['n_permutations'].mean()}")
 
 
 def figure_tracks_per_voice_instrument(df_tracks):
-    # Figure: Tracks per Instrument and Voice
-    grouped = df_tracks.groupby(["voice", "instrument"]).size()
-    grouped = grouped.reset_index().sort_values(by=["voice", 0], ascending=True)
-    grouped = grouped.set_index(["voice", "instrument"])
+    # Figure: Tracks per Instrument and Part
+    grouped = df_tracks.groupby(["part", "instrument"]).size().reset_index()
+    # `part` is a string since v1.1, so sort it by SATB order instead of alphabetically
+    grouped["part"] = pd.Categorical(
+        grouped["part"], categories=list(SCORE_PART_ORDER), ordered=True
+    )
+    grouped = grouped.sort_values(by=["part", 0], ascending=True)
+    grouped = grouped.set_index(["part", "instrument"])
 
     fig, ax = plt.subplots(figsize=(10, 8))
 
     y_tick_labels = []
     legend_entries = []
     for cur_i, (cur_idx, cur_box) in enumerate(grouped.iterrows()):
-        cur_voice = get_voice_from_int(cur_idx[0])
+        cur_voice = VOICE_STRINGS_SHORT[cur_idx[0]]
         cur_instrument = Instrument(cur_idx[1])
         cur_color = VOICE_COLORS[cur_voice]
 
@@ -188,7 +194,8 @@ def figure_tracks_per_voice_instrument(df_tracks):
     # ax.set_title("Number of Tracks per Voice and Instrument", fontsize=16)
     ax.set_xlabel("#Tracks", fontsize=14)
     ax.set_ylabel("Instrument", fontsize=14)
-    ax.set_xlim(0, 11)
+    max_tracks = grouped[0].max()
+    ax.set_xlim(0, max_tracks * 1.05)
     ax.spines['top'].set_visible(False)  # Remove the top spine
     ax.spines['right'].set_visible(False)  # Remove the right spine
     ax.set_ylim(-1, grouped.shape[0])
@@ -214,12 +221,13 @@ def figure_pitch_hist_SATB():
         try:
             cur_notes = read_notes(cur_track.path_notes)
 
-            notes[Voices(cur_track.voice)].extend(cur_notes["pitch"].tolist())
+            notes[VOICE_STRINGS_SHORT[cur_track.part]].extend(cur_notes["pitch"].tolist())
         except FileNotFoundError:
-            print(f"Skipping notes from {cur_track.song_id}_{cur_track.voice}_{cur_track.instrument}. Reason: No annotations.")
+            print(f"Skipping notes from {cur_track.song_id}_{cur_track.part}_{cur_track.instrument}. Reason: No annotations.")
 
     fig, axes = plt.subplots(2, 2, figsize=(10, 6),sharex=True, sharey=True)
     axes_flat = axes.ravel()
+    count_axes = []
 
     for cur_idx, cur_voice in enumerate(Voices):
         cur_df = pd.DataFrame(notes[cur_voice], columns=["midi_pitch"])
@@ -237,6 +245,7 @@ def figure_pitch_hist_SATB():
 
         # add for the count
         ax_count = axes_flat[cur_idx].twinx()
+        count_axes.append(ax_count)
         sns.histplot(
             cur_df['midi_pitch'],
             bins=20,
@@ -257,7 +266,6 @@ def figure_pitch_hist_SATB():
 
         sns.despine(right=False)
         axes_flat[cur_idx].set_xlim((20, 90))
-        ax_count.set_ylim((0, 2375))
         ax_count.set_ylabel("#Note Events")
         axes_flat[cur_idx].set_title((
                 f"{VOICE_STRINGS[cur_voice]}: "
@@ -268,11 +276,21 @@ def figure_pitch_hist_SATB():
             fontsize=12)
         axes_flat[cur_idx].set_xlabel("MIDI Pitch")
 
+    # `sharey` does not propagate to twinx() axes, so equalize them by hand to
+    # keep the note counts comparable across the four parts
+    max_count = max(cur_ax.get_ylim()[1] for cur_ax in count_axes)
+    for cur_ax in count_axes:
+        cur_ax.set_ylim(0, max_count)
+
     plt.tight_layout()
     plt.savefig('pitch_hist_SATB.pdf')
 
 
 def figure_timeline_recordings(df_tracks):
+    if df_tracks["date"].dropna().empty:
+        print("Skipping recording timeline figure: no recording dates available.")
+        return
+
     # Figure: Timeline of Number of Records per Day
     df_timeline = df_tracks[["date", "instrument"]]
     df_timeline.set_index("date", inplace=True)
@@ -319,7 +337,8 @@ def figure_timeline_recordings(df_tracks):
 def main():
     cbdb = SongDB()
     df_songs, df_tracks = collect_data(cbdb)
-    df_performers = pd.read_csv(Path(os.environ["CHORALEDB_PATH"]) / "metadata_performers.csv", sep=";")
+    performers_path = Path(os.environ["CHORALEDB_PATH"]) / "metadata_performers.csv"
+    df_performers = pd.read_csv(performers_path, sep=";") if performers_path.is_file() else None
 
     print_tables(df_songs=df_songs, df_tracks=df_tracks, df_performers=df_performers)
     figure_tracks_per_voice_instrument(df_tracks)
